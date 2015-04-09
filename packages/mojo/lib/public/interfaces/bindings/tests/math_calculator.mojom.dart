@@ -5,16 +5,17 @@
 library math_calculator.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 
 class CalculatorClearParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  CalculatorClearParams() : super(kStructSize);
+  CalculatorClearParams() : super(kVersions.last.size);
 
   static CalculatorClearParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -27,15 +28,25 @@ class CalculatorClearParams extends bindings.Struct {
     CalculatorClearParams result = new CalculatorClearParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -44,12 +55,12 @@ class CalculatorClearParams extends bindings.Struct {
 }
 
 class CalculatorClearResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   double value = 0.0;
 
-  CalculatorClearResponseParams() : super(kStructSize);
+  CalculatorClearResponseParams() : super(kVersions.last.size);
 
   static CalculatorClearResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -62,11 +73,21 @@ class CalculatorClearResponseParams extends bindings.Struct {
     CalculatorClearResponseParams result = new CalculatorClearResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeDouble(8);
     }
@@ -74,7 +95,7 @@ class CalculatorClearResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeDouble(value, 8);
   }
@@ -86,12 +107,12 @@ class CalculatorClearResponseParams extends bindings.Struct {
 }
 
 class CalculatorAddParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   double value = 0.0;
 
-  CalculatorAddParams() : super(kStructSize);
+  CalculatorAddParams() : super(kVersions.last.size);
 
   static CalculatorAddParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -104,11 +125,21 @@ class CalculatorAddParams extends bindings.Struct {
     CalculatorAddParams result = new CalculatorAddParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeDouble(8);
     }
@@ -116,7 +147,7 @@ class CalculatorAddParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeDouble(value, 8);
   }
@@ -128,12 +159,12 @@ class CalculatorAddParams extends bindings.Struct {
 }
 
 class CalculatorAddResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   double value = 0.0;
 
-  CalculatorAddResponseParams() : super(kStructSize);
+  CalculatorAddResponseParams() : super(kVersions.last.size);
 
   static CalculatorAddResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -146,11 +177,21 @@ class CalculatorAddResponseParams extends bindings.Struct {
     CalculatorAddResponseParams result = new CalculatorAddResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeDouble(8);
     }
@@ -158,7 +199,7 @@ class CalculatorAddResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeDouble(value, 8);
   }
@@ -170,12 +211,12 @@ class CalculatorAddResponseParams extends bindings.Struct {
 }
 
 class CalculatorMultiplyParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   double value = 0.0;
 
-  CalculatorMultiplyParams() : super(kStructSize);
+  CalculatorMultiplyParams() : super(kVersions.last.size);
 
   static CalculatorMultiplyParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -188,11 +229,21 @@ class CalculatorMultiplyParams extends bindings.Struct {
     CalculatorMultiplyParams result = new CalculatorMultiplyParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeDouble(8);
     }
@@ -200,7 +251,7 @@ class CalculatorMultiplyParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeDouble(value, 8);
   }
@@ -212,12 +263,12 @@ class CalculatorMultiplyParams extends bindings.Struct {
 }
 
 class CalculatorMultiplyResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   double value = 0.0;
 
-  CalculatorMultiplyResponseParams() : super(kStructSize);
+  CalculatorMultiplyResponseParams() : super(kVersions.last.size);
 
   static CalculatorMultiplyResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -230,11 +281,21 @@ class CalculatorMultiplyResponseParams extends bindings.Struct {
     CalculatorMultiplyResponseParams result = new CalculatorMultiplyResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeDouble(8);
     }
@@ -242,7 +303,7 @@ class CalculatorMultiplyResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeDouble(value, 8);
   }
@@ -404,7 +465,7 @@ class CalculatorProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new CalculatorProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "CalculatorProxy($impl)";

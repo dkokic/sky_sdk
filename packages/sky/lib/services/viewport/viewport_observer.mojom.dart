@@ -5,20 +5,21 @@
 library viewport_observer.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:sky/services/viewport/input_event.mojom.dart' as input_event_mojom;
 
 
 class ViewportObserverOnViewportMetricsChangedParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int width = 0;
   int height = 0;
   double devicePixelRatio = 0.0;
 
-  ViewportObserverOnViewportMetricsChangedParams() : super(kStructSize);
+  ViewportObserverOnViewportMetricsChangedParams() : super(kVersions.last.size);
 
   static ViewportObserverOnViewportMetricsChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -31,19 +32,29 @@ class ViewportObserverOnViewportMetricsChangedParams extends bindings.Struct {
     ViewportObserverOnViewportMetricsChangedParams result = new ViewportObserverOnViewportMetricsChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.width = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.height = decoder0.decodeInt32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.devicePixelRatio = decoder0.decodeFloat(16);
     }
@@ -51,7 +62,7 @@ class ViewportObserverOnViewportMetricsChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(width, 8);
     
@@ -69,12 +80,12 @@ class ViewportObserverOnViewportMetricsChangedParams extends bindings.Struct {
 }
 
 class ViewportObserverOnInputEventParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   input_event_mojom.InputEvent event = null;
 
-  ViewportObserverOnInputEventParams() : super(kStructSize);
+  ViewportObserverOnInputEventParams() : super(kVersions.last.size);
 
   static ViewportObserverOnInputEventParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -87,11 +98,21 @@ class ViewportObserverOnInputEventParams extends bindings.Struct {
     ViewportObserverOnInputEventParams result = new ViewportObserverOnInputEventParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.event = input_event_mojom.InputEvent.decode(decoder1);
@@ -100,7 +121,7 @@ class ViewportObserverOnInputEventParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(event, 8, false);
   }
@@ -112,12 +133,12 @@ class ViewportObserverOnInputEventParams extends bindings.Struct {
 }
 
 class ViewportObserverLoadUrlParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   String url = null;
 
-  ViewportObserverLoadUrlParams() : super(kStructSize);
+  ViewportObserverLoadUrlParams() : super(kVersions.last.size);
 
   static ViewportObserverLoadUrlParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -130,11 +151,21 @@ class ViewportObserverLoadUrlParams extends bindings.Struct {
     ViewportObserverLoadUrlParams result = new ViewportObserverLoadUrlParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
@@ -142,7 +173,7 @@ class ViewportObserverLoadUrlParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
   }
@@ -256,7 +287,7 @@ class ViewportObserverProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ViewportObserverProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ViewportObserverProxy($impl)";

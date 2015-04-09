@@ -5,8 +5,9 @@
 library input_event.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 final int EventType_UNKNOWN = 0;
 final int EventType_POINTER_CANCEL = EventType_UNKNOWN + 1;
@@ -27,9 +28,9 @@ final int PointerKind_TOUCH = 0;
 
 
 class PointerData extends bindings.Struct {
-  static const int kStructSize = 80;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(80, 0)
+  ];
   int pointer = 0;
   int kind = 0;
   double x = 0.0;
@@ -48,7 +49,7 @@ class PointerData extends bindings.Struct {
   double orientation = 0.0;
   double tilt = 0.0;
 
-  PointerData() : super(kStructSize);
+  PointerData() : super(kVersions.last.size);
 
   static PointerData deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -61,75 +62,85 @@ class PointerData extends bindings.Struct {
     PointerData result = new PointerData();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pointer = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.kind = decoder0.decodeInt32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.x = decoder0.decodeFloat(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.y = decoder0.decodeFloat(20);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.buttons = decoder0.decodeInt32(24);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pressure = decoder0.decodeFloat(28);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pressureMin = decoder0.decodeFloat(32);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pressureMax = decoder0.decodeFloat(36);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.distance = decoder0.decodeFloat(40);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.distanceMin = decoder0.decodeFloat(44);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.distanceMax = decoder0.decodeFloat(48);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.radiusMajor = decoder0.decodeFloat(52);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.radiusMinor = decoder0.decodeFloat(56);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.radiusMin = decoder0.decodeFloat(60);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.radiusMax = decoder0.decodeFloat(64);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.orientation = decoder0.decodeFloat(68);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.tilt = decoder0.decodeFloat(72);
     }
@@ -137,7 +148,7 @@ class PointerData extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(pointer, 8);
     
@@ -197,9 +208,9 @@ class PointerData extends bindings.Struct {
 }
 
 class GestureData extends bindings.Struct {
-  static const int kStructSize = 40;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(40, 0)
+  ];
   int primaryPointer = 0;
   double x = 0.0;
   double y = 0.0;
@@ -208,7 +219,7 @@ class GestureData extends bindings.Struct {
   double velocityX = 0.0;
   double velocityY = 0.0;
 
-  GestureData() : super(kStructSize);
+  GestureData() : super(kVersions.last.size);
 
   static GestureData deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -221,35 +232,45 @@ class GestureData extends bindings.Struct {
     GestureData result = new GestureData();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.primaryPointer = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.x = decoder0.decodeFloat(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.y = decoder0.decodeFloat(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.dx = decoder0.decodeFloat(20);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.dy = decoder0.decodeFloat(24);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.velocityX = decoder0.decodeFloat(28);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.velocityY = decoder0.decodeFloat(32);
     }
@@ -257,7 +278,7 @@ class GestureData extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(primaryPointer, 8);
     
@@ -287,15 +308,15 @@ class GestureData extends bindings.Struct {
 }
 
 class InputEvent extends bindings.Struct {
-  static const int kStructSize = 40;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(40, 0)
+  ];
   int type = 0;
   int timeStamp = 0;
   PointerData pointerData = null;
   GestureData gestureData = null;
 
-  InputEvent() : super(kStructSize);
+  InputEvent() : super(kVersions.last.size);
 
   static InputEvent deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -308,24 +329,34 @@ class InputEvent extends bindings.Struct {
     InputEvent result = new InputEvent();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.type = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.timeStamp = decoder0.decodeInt64(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, true);
       result.pointerData = PointerData.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, true);
       result.gestureData = GestureData.decode(decoder1);
@@ -334,7 +365,7 @@ class InputEvent extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(type, 8);
     

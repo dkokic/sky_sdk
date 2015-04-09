@@ -5,19 +5,20 @@
 library service_registry.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/public/interfaces/application/service_provider.mojom.dart' as service_provider_mojom;
 
 
 class ServiceRegistryAddServicesParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   List<String> interfaceNames = null;
   Object serviceProvider = null;
 
-  ServiceRegistryAddServicesParams() : super(kStructSize);
+  ServiceRegistryAddServicesParams() : super(kVersions.last.size);
 
   static ServiceRegistryAddServicesParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -30,11 +31,21 @@ class ServiceRegistryAddServicesParams extends bindings.Struct {
     ServiceRegistryAddServicesParams result = new ServiceRegistryAddServicesParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       {
@@ -46,7 +57,7 @@ class ServiceRegistryAddServicesParams extends bindings.Struct {
         }
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.serviceProvider = decoder0.decodeServiceInterface(16, false, service_provider_mojom.ServiceProviderProxy.newFromEndpoint);
     }
@@ -54,7 +65,7 @@ class ServiceRegistryAddServicesParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     if (interfaceNames == null) {
       encoder0.encodeNullPointer(8, false);
@@ -160,7 +171,7 @@ class ServiceRegistryProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ServiceRegistryProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ServiceRegistryProxy($impl)";

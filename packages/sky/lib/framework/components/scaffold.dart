@@ -33,31 +33,27 @@ class Scaffold extends Component {
     bottom: 0;
     right: 0;''');
 
-  ActionBar actionBar;
-  Node content;
+  UINode header;
+  UINode content;
   FloatingActionButton fab;
   Drawer drawer;
-  List<Node> overlays;
+  List<UINode> overlays;
 
   Scaffold({
     Object key,
-    this.actionBar,
+    this.header,
     this.content,
     this.fab,
     this.drawer,
     this.overlays
   }) : super(key: key);
 
-  Node build() {
-    var children = [
+  UINode build() {
+    List<UINode> children = [
       new Container(
         key: 'Main',
         style: _mainStyle,
-        children: [
-          actionBar,
-          new StyleNode(content, _contentStyle)
-        ]
-      ),
+        children: [header, new StyleNode(content, _contentStyle)])
     ];
 
     if (fab != null)

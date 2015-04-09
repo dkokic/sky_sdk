@@ -11,6 +11,7 @@ class MenuItem extends ButtonBase {
   static final Style _style = new Style('''
     transform: translateX(0);
     display: flex;
+    flex-direction: row;
     align-items: center;
     height: 48px;
     -webkit-user-select: none;'''
@@ -19,6 +20,7 @@ class MenuItem extends ButtonBase {
   static final Style _highlightStyle = new Style('''
     transform: translateX(0);
     display: flex;
+    flex-direction: row;
     align-items: center;
     height: 48px;
     background: rgba(153, 153, 153, 0.4);
@@ -34,25 +36,29 @@ class MenuItem extends ButtonBase {
     flex: 1;'''
   );
 
-  List<Node> children;
+  List<UINode> children;
   String icon;
 
   MenuItem({ Object key, this.icon, this.children }) : super(key: key);
 
-  Node buildContent() {
-    return new InkWell (
-      style: highlight ? _highlightStyle : _style,
-      children: [
-        new Icon(
-          style: _iconStyle,
-          size: 24,
-          type: "${icon}_grey600"
-        ),
-        new Container(
-          style: _labelStyle,
-          children: children
-        )
-      ]
+  UINode buildContent() {
+    return new StyleNode(
+      new InkWell(
+        children: [
+          new StyleNode(
+            new Icon(
+              size: 24,
+              type: "${icon}_grey600"
+            ),
+            _iconStyle
+          ),
+          new Container(
+            style: _labelStyle,
+            children: children
+          )
+        ]
+      ),
+      highlight ? _highlightStyle : _style
     );
   }
 }

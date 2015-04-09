@@ -5,17 +5,18 @@
 library clipboard.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 
 class ClipboardGetSequenceNumberParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int clipboardType = 0;
 
-  ClipboardGetSequenceNumberParams() : super(kStructSize);
+  ClipboardGetSequenceNumberParams() : super(kVersions.last.size);
 
   static ClipboardGetSequenceNumberParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -28,11 +29,21 @@ class ClipboardGetSequenceNumberParams extends bindings.Struct {
     ClipboardGetSequenceNumberParams result = new ClipboardGetSequenceNumberParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.clipboardType = decoder0.decodeInt32(8);
     }
@@ -40,7 +51,7 @@ class ClipboardGetSequenceNumberParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(clipboardType, 8);
   }
@@ -52,12 +63,12 @@ class ClipboardGetSequenceNumberParams extends bindings.Struct {
 }
 
 class ClipboardGetSequenceNumberResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int sequence = 0;
 
-  ClipboardGetSequenceNumberResponseParams() : super(kStructSize);
+  ClipboardGetSequenceNumberResponseParams() : super(kVersions.last.size);
 
   static ClipboardGetSequenceNumberResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -70,11 +81,21 @@ class ClipboardGetSequenceNumberResponseParams extends bindings.Struct {
     ClipboardGetSequenceNumberResponseParams result = new ClipboardGetSequenceNumberResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.sequence = decoder0.decodeUint64(8);
     }
@@ -82,7 +103,7 @@ class ClipboardGetSequenceNumberResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint64(sequence, 8);
   }
@@ -94,12 +115,12 @@ class ClipboardGetSequenceNumberResponseParams extends bindings.Struct {
 }
 
 class ClipboardGetAvailableMimeTypesParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int clipboardTypes = 0;
 
-  ClipboardGetAvailableMimeTypesParams() : super(kStructSize);
+  ClipboardGetAvailableMimeTypesParams() : super(kVersions.last.size);
 
   static ClipboardGetAvailableMimeTypesParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -112,11 +133,21 @@ class ClipboardGetAvailableMimeTypesParams extends bindings.Struct {
     ClipboardGetAvailableMimeTypesParams result = new ClipboardGetAvailableMimeTypesParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.clipboardTypes = decoder0.decodeInt32(8);
     }
@@ -124,7 +155,7 @@ class ClipboardGetAvailableMimeTypesParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(clipboardTypes, 8);
   }
@@ -136,12 +167,12 @@ class ClipboardGetAvailableMimeTypesParams extends bindings.Struct {
 }
 
 class ClipboardGetAvailableMimeTypesResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   List<String> types = null;
 
-  ClipboardGetAvailableMimeTypesResponseParams() : super(kStructSize);
+  ClipboardGetAvailableMimeTypesResponseParams() : super(kVersions.last.size);
 
   static ClipboardGetAvailableMimeTypesResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -154,11 +185,21 @@ class ClipboardGetAvailableMimeTypesResponseParams extends bindings.Struct {
     ClipboardGetAvailableMimeTypesResponseParams result = new ClipboardGetAvailableMimeTypesResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       {
@@ -174,7 +215,7 @@ class ClipboardGetAvailableMimeTypesResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     if (types == null) {
       encoder0.encodeNullPointer(8, false);
@@ -194,13 +235,13 @@ class ClipboardGetAvailableMimeTypesResponseParams extends bindings.Struct {
 }
 
 class ClipboardReadMimeTypeParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int clipboardType = 0;
   String mimeType = null;
 
-  ClipboardReadMimeTypeParams() : super(kStructSize);
+  ClipboardReadMimeTypeParams() : super(kVersions.last.size);
 
   static ClipboardReadMimeTypeParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -213,15 +254,25 @@ class ClipboardReadMimeTypeParams extends bindings.Struct {
     ClipboardReadMimeTypeParams result = new ClipboardReadMimeTypeParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.clipboardType = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.mimeType = decoder0.decodeString(16, false);
     }
@@ -229,7 +280,7 @@ class ClipboardReadMimeTypeParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(clipboardType, 8);
     
@@ -244,12 +295,12 @@ class ClipboardReadMimeTypeParams extends bindings.Struct {
 }
 
 class ClipboardReadMimeTypeResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   List<int> data = null;
 
-  ClipboardReadMimeTypeResponseParams() : super(kStructSize);
+  ClipboardReadMimeTypeResponseParams() : super(kVersions.last.size);
 
   static ClipboardReadMimeTypeResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -262,11 +313,21 @@ class ClipboardReadMimeTypeResponseParams extends bindings.Struct {
     ClipboardReadMimeTypeResponseParams result = new ClipboardReadMimeTypeResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.data = decoder0.decodeUint8Array(8, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
     }
@@ -274,7 +335,7 @@ class ClipboardReadMimeTypeResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint8Array(data, 8, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
   }
@@ -286,13 +347,13 @@ class ClipboardReadMimeTypeResponseParams extends bindings.Struct {
 }
 
 class ClipboardWriteClipboardDataParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int clipboardType = 0;
   Map<String, List<int>> data = null;
 
-  ClipboardWriteClipboardDataParams() : super(kStructSize);
+  ClipboardWriteClipboardDataParams() : super(kVersions.last.size);
 
   static ClipboardWriteClipboardDataParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -305,15 +366,25 @@ class ClipboardWriteClipboardDataParams extends bindings.Struct {
     ClipboardWriteClipboardDataParams result = new ClipboardWriteClipboardDataParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.clipboardType = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, true);
       if (decoder1 == null) {
@@ -354,7 +425,7 @@ class ClipboardWriteClipboardDataParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(clipboardType, 8);
     
@@ -561,7 +632,7 @@ class ClipboardProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ClipboardProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ClipboardProxy($impl)";

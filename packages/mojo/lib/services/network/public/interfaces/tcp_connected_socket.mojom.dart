@@ -5,8 +5,9 @@
 library tcp_connected_socket.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 
 const String TcpConnectedSocketName =
@@ -83,7 +84,7 @@ class TcpConnectedSocketProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new TcpConnectedSocketProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "TcpConnectedSocketProxy($impl)";

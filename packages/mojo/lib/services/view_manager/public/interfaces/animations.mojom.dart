@@ -5,8 +5,9 @@
 library animations.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/geometry/public/interfaces/geometry.mojom.dart' as geometry_mojom;
 
 final int AnimationTweenType_LINEAR = 0;
@@ -20,13 +21,13 @@ final int AnimationProperty_TRANSFORM = AnimationProperty_OPACITY + 1;
 
 
 class AnimationValue extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   double floatValue = 0.0;
   geometry_mojom.Transform transform = null;
 
-  AnimationValue() : super(kStructSize);
+  AnimationValue() : super(kVersions.last.size);
 
   static AnimationValue deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -39,15 +40,25 @@ class AnimationValue extends bindings.Struct {
     AnimationValue result = new AnimationValue();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.floatValue = decoder0.decodeFloat(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.transform = geometry_mojom.Transform.decode(decoder1);
@@ -56,7 +67,7 @@ class AnimationValue extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeFloat(floatValue, 8);
     
@@ -71,16 +82,16 @@ class AnimationValue extends bindings.Struct {
 }
 
 class AnimationElement extends bindings.Struct {
-  static const int kStructSize = 40;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(40, 0)
+  ];
   int property = 0;
   int tweenType = 0;
   int duration = 0;
   AnimationValue startValue = null;
   AnimationValue targetValue = null;
 
-  AnimationElement() : super(kStructSize);
+  AnimationElement() : super(kVersions.last.size);
 
   static AnimationElement deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -93,28 +104,38 @@ class AnimationElement extends bindings.Struct {
     AnimationElement result = new AnimationElement();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.property = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.tweenType = decoder0.decodeInt32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.duration = decoder0.decodeInt64(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, true);
       result.startValue = AnimationValue.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, true);
       result.targetValue = AnimationValue.decode(decoder1);
@@ -123,7 +144,7 @@ class AnimationElement extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(property, 8);
     
@@ -147,13 +168,13 @@ class AnimationElement extends bindings.Struct {
 }
 
 class AnimationSequence extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int cycleCount = 0;
   List<AnimationElement> elements = null;
 
-  AnimationSequence() : super(kStructSize);
+  AnimationSequence() : super(kVersions.last.size);
 
   static AnimationSequence deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -166,15 +187,25 @@ class AnimationSequence extends bindings.Struct {
     AnimationSequence result = new AnimationSequence();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.cycleCount = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       {
@@ -191,7 +222,7 @@ class AnimationSequence extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(cycleCount, 8);
     
@@ -214,13 +245,13 @@ class AnimationSequence extends bindings.Struct {
 }
 
 class AnimationGroup extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   List<AnimationSequence> sequences = null;
 
-  AnimationGroup() : super(kStructSize);
+  AnimationGroup() : super(kVersions.last.size);
 
   static AnimationGroup deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -233,15 +264,25 @@ class AnimationGroup extends bindings.Struct {
     AnimationGroup result = new AnimationGroup();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       {
@@ -258,7 +299,7 @@ class AnimationGroup extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     

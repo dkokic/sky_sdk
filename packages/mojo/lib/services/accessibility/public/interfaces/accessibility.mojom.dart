@@ -5,15 +5,16 @@
 library accessibility.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/geometry/public/interfaces/geometry.mojom.dart' as geometry_mojom;
 
 
 class AxNode extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   int id = 0;
   int parentId = 0;
   int nextSiblingId = 0;
@@ -21,7 +22,7 @@ class AxNode extends bindings.Struct {
   AxLink link = null;
   AxText text = null;
 
-  AxNode() : super(kStructSize);
+  AxNode() : super(kVersions.last.size);
 
   static AxNode deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -34,33 +35,43 @@ class AxNode extends bindings.Struct {
     AxNode result = new AxNode();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.id = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.parentId = decoder0.decodeUint32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.nextSiblingId = decoder0.decodeUint32(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.bounds = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, true);
       result.link = AxLink.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(40, true);
       result.text = AxText.decode(decoder1);
@@ -69,7 +80,7 @@ class AxNode extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(id, 8);
     
@@ -96,12 +107,12 @@ class AxNode extends bindings.Struct {
 }
 
 class AxLink extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   String url = null;
 
-  AxLink() : super(kStructSize);
+  AxLink() : super(kVersions.last.size);
 
   static AxLink deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -114,11 +125,21 @@ class AxLink extends bindings.Struct {
     AxLink result = new AxLink();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
@@ -126,7 +147,7 @@ class AxLink extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
   }
@@ -138,12 +159,12 @@ class AxLink extends bindings.Struct {
 }
 
 class AxText extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   String content = null;
 
-  AxText() : super(kStructSize);
+  AxText() : super(kVersions.last.size);
 
   static AxText deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -156,11 +177,21 @@ class AxText extends bindings.Struct {
     AxText result = new AxText();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.content = decoder0.decodeString(8, false);
     }
@@ -168,7 +199,7 @@ class AxText extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(content, 8, false);
   }
@@ -180,11 +211,11 @@ class AxText extends bindings.Struct {
 }
 
 class AxProviderGetTreeParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  AxProviderGetTreeParams() : super(kStructSize);
+  AxProviderGetTreeParams() : super(kVersions.last.size);
 
   static AxProviderGetTreeParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -197,15 +228,25 @@ class AxProviderGetTreeParams extends bindings.Struct {
     AxProviderGetTreeParams result = new AxProviderGetTreeParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -214,12 +255,12 @@ class AxProviderGetTreeParams extends bindings.Struct {
 }
 
 class AxProviderGetTreeResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   List<AxNode> nodes = null;
 
-  AxProviderGetTreeResponseParams() : super(kStructSize);
+  AxProviderGetTreeResponseParams() : super(kVersions.last.size);
 
   static AxProviderGetTreeResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -232,11 +273,21 @@ class AxProviderGetTreeResponseParams extends bindings.Struct {
     AxProviderGetTreeResponseParams result = new AxProviderGetTreeResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       {
@@ -253,7 +304,7 @@ class AxProviderGetTreeResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     if (nodes == null) {
       encoder0.encodeNullPointer(8, false);
@@ -371,7 +422,7 @@ class AxProviderProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new AxProviderProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "AxProviderProxy($impl)";

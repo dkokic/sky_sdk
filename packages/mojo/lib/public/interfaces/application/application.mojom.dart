@@ -5,21 +5,22 @@
 library application.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/public/interfaces/application/service_provider.mojom.dart' as service_provider_mojom;
 import 'package:mojo/public/interfaces/application/shell.mojom.dart' as shell_mojom;
 
 
 class ApplicationInitializeParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   Object shell = null;
   List<String> args = null;
   String url = null;
 
-  ApplicationInitializeParams() : super(kStructSize);
+  ApplicationInitializeParams() : super(kVersions.last.size);
 
   static ApplicationInitializeParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -32,15 +33,25 @@ class ApplicationInitializeParams extends bindings.Struct {
     ApplicationInitializeParams result = new ApplicationInitializeParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.shell = decoder0.decodeServiceInterface(8, false, shell_mojom.ShellProxy.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, true);
       if (decoder1 == null) {
@@ -54,7 +65,7 @@ class ApplicationInitializeParams extends bindings.Struct {
         }
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(24, false);
     }
@@ -62,7 +73,7 @@ class ApplicationInitializeParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInterface(shell, 8, false);
     
@@ -88,15 +99,15 @@ class ApplicationInitializeParams extends bindings.Struct {
 }
 
 class ApplicationAcceptConnectionParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   String requestorUrl = null;
   Object services = null;
   Object exposedServices = null;
   String resolvedUrl = null;
 
-  ApplicationAcceptConnectionParams() : super(kStructSize);
+  ApplicationAcceptConnectionParams() : super(kVersions.last.size);
 
   static ApplicationAcceptConnectionParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -109,23 +120,33 @@ class ApplicationAcceptConnectionParams extends bindings.Struct {
     ApplicationAcceptConnectionParams result = new ApplicationAcceptConnectionParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.requestorUrl = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.services = decoder0.decodeInterfaceRequest(16, true, service_provider_mojom.ServiceProviderStub.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.exposedServices = decoder0.decodeServiceInterface(20, true, service_provider_mojom.ServiceProviderProxy.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.resolvedUrl = decoder0.decodeString(24, false);
     }
@@ -133,7 +154,7 @@ class ApplicationAcceptConnectionParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(requestorUrl, 8, false);
     
@@ -154,11 +175,11 @@ class ApplicationAcceptConnectionParams extends bindings.Struct {
 }
 
 class ApplicationRequestQuitParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  ApplicationRequestQuitParams() : super(kStructSize);
+  ApplicationRequestQuitParams() : super(kVersions.last.size);
 
   static ApplicationRequestQuitParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -171,15 +192,25 @@ class ApplicationRequestQuitParams extends bindings.Struct {
     ApplicationRequestQuitParams result = new ApplicationRequestQuitParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -292,7 +323,7 @@ class ApplicationProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ApplicationProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ApplicationProxy($impl)";

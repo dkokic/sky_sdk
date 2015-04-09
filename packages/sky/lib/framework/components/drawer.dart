@@ -22,6 +22,8 @@ const Curve _kAnimationCurve = parabolicRise;
 class DrawerController {
   final AnimatedValue position = new AnimatedValue(-_kWidth);
 
+  bool get isClosed => position.value == -_kWidth;
+
   bool get _isMostlyClosed => position.value <= -_kWidth / 2;
 
   void toggle(_) => _isMostlyClosed ? _open() : _close();
@@ -101,7 +103,7 @@ class Drawer extends AnimatedComponent {
     bottom: 0;'''
   );
 
-  List<Node> children;
+  List<UINode> children;
   int level;
   DrawerController controller;
 
@@ -116,15 +118,14 @@ class Drawer extends AnimatedComponent {
     animateField(controller.position, #_position);
   }
 
-  Node build() {
+  UINode build() {
     bool isClosed = _position <= -_kWidth;
     String inlineStyle = 'display: ${isClosed ? 'none' : ''}';
     String maskInlineStyle = 'opacity: ${(_position / _kWidth + 1) * 0.5}';
     String contentInlineStyle = 'transform: translateX(${_position}px)';
 
-    var mask = new EventTarget(
+    var mask = new EventListenerNode(
       new Container(
-        key: 'Mask',
         style: _maskStyle,
         inlineStyle: maskInlineStyle
       ),
@@ -133,14 +134,14 @@ class Drawer extends AnimatedComponent {
     );
 
     Material content = new Material(
-      key: 'Content',
-      style: _contentStyle,
-      inlineStyle: contentInlineStyle,
-      children: children,
-      level: level
-    );
+      content: new Container(
+        style: _contentStyle,
+        inlineStyle: contentInlineStyle,
+        children: children
+      ),
+      level: level);
 
-    return new EventTarget(
+    return new EventListenerNode(
       new Container(
         style: _style,
         inlineStyle: inlineStyle,

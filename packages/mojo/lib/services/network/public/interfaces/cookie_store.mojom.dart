@@ -5,17 +5,18 @@
 library cookie_store.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 
 class CookieStoreGetParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   String url = null;
 
-  CookieStoreGetParams() : super(kStructSize);
+  CookieStoreGetParams() : super(kVersions.last.size);
 
   static CookieStoreGetParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -28,11 +29,21 @@ class CookieStoreGetParams extends bindings.Struct {
     CookieStoreGetParams result = new CookieStoreGetParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
@@ -40,7 +51,7 @@ class CookieStoreGetParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
   }
@@ -52,12 +63,12 @@ class CookieStoreGetParams extends bindings.Struct {
 }
 
 class CookieStoreGetResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   String cookies = null;
 
-  CookieStoreGetResponseParams() : super(kStructSize);
+  CookieStoreGetResponseParams() : super(kVersions.last.size);
 
   static CookieStoreGetResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -70,11 +81,21 @@ class CookieStoreGetResponseParams extends bindings.Struct {
     CookieStoreGetResponseParams result = new CookieStoreGetResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.cookies = decoder0.decodeString(8, false);
     }
@@ -82,7 +103,7 @@ class CookieStoreGetResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(cookies, 8, false);
   }
@@ -94,13 +115,13 @@ class CookieStoreGetResponseParams extends bindings.Struct {
 }
 
 class CookieStoreSetParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   String url = null;
   String cookie = null;
 
-  CookieStoreSetParams() : super(kStructSize);
+  CookieStoreSetParams() : super(kVersions.last.size);
 
   static CookieStoreSetParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -113,15 +134,25 @@ class CookieStoreSetParams extends bindings.Struct {
     CookieStoreSetParams result = new CookieStoreSetParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.cookie = decoder0.decodeString(16, false);
     }
@@ -129,7 +160,7 @@ class CookieStoreSetParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
     
@@ -144,12 +175,12 @@ class CookieStoreSetParams extends bindings.Struct {
 }
 
 class CookieStoreSetResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  CookieStoreSetResponseParams() : super(kStructSize);
+  CookieStoreSetResponseParams() : super(kVersions.last.size);
 
   static CookieStoreSetResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -162,11 +193,21 @@ class CookieStoreSetResponseParams extends bindings.Struct {
     CookieStoreSetResponseParams result = new CookieStoreSetResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -174,7 +215,7 @@ class CookieStoreSetResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -312,7 +353,7 @@ class CookieStoreProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new CookieStoreProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "CookieStoreProxy($impl)";

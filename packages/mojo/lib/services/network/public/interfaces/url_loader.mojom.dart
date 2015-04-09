@@ -5,15 +5,16 @@
 library url_loader.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/network/public/interfaces/network_error.mojom.dart' as network_error_mojom;
 
 
 class UrlRequest extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   String url = null;
   String method = "GET";
   List<String> headers = null;
@@ -22,7 +23,7 @@ class UrlRequest extends bindings.Struct {
   bool autoFollowRedirects = false;
   bool bypassCache = false;
 
-  UrlRequest() : super(kStructSize);
+  UrlRequest() : super(kVersions.last.size);
 
   static UrlRequest deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -35,19 +36,29 @@ class UrlRequest extends bindings.Struct {
     UrlRequest result = new UrlRequest();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.method = decoder0.decodeString(16, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, true);
       if (decoder1 == null) {
@@ -61,19 +72,19 @@ class UrlRequest extends bindings.Struct {
         }
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.body = decoder0.decodeConsumerHandleArray(32, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.responseBodyBufferSize = decoder0.decodeUint32(40);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.autoFollowRedirects = decoder0.decodeBool(44, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.bypassCache = decoder0.decodeBool(44, 1);
     }
@@ -81,7 +92,7 @@ class UrlRequest extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
     
@@ -119,9 +130,9 @@ class UrlRequest extends bindings.Struct {
 }
 
 class UrlResponse extends bindings.Struct {
-  static const int kStructSize = 80;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(80, 0)
+  ];
   network_error_mojom.NetworkError error = null;
   core.MojoDataPipeConsumer body = null;
   int statusCode = 0;
@@ -133,7 +144,7 @@ class UrlResponse extends bindings.Struct {
   String redirectMethod = null;
   String redirectUrl = null;
 
-  UrlResponse() : super(kStructSize);
+  UrlResponse() : super(kVersions.last.size);
 
   static UrlResponse deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -146,32 +157,42 @@ class UrlResponse extends bindings.Struct {
     UrlResponse result = new UrlResponse();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, true);
       result.error = network_error_mojom.NetworkError.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.body = decoder0.decodeConsumerHandle(16, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.statusCode = decoder0.decodeUint32(20);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(24, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.statusLine = decoder0.decodeString(32, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(40, true);
       if (decoder1 == null) {
@@ -185,19 +206,19 @@ class UrlResponse extends bindings.Struct {
         }
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.mimeType = decoder0.decodeString(48, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.charset = decoder0.decodeString(56, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.redirectMethod = decoder0.decodeString(64, true);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.redirectUrl = decoder0.decodeString(72, true);
     }
@@ -205,7 +226,7 @@ class UrlResponse extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(error, 8, true);
     
@@ -252,13 +273,13 @@ class UrlResponse extends bindings.Struct {
 }
 
 class UrlLoaderStatus extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   network_error_mojom.NetworkError error = null;
   bool isLoading = false;
 
-  UrlLoaderStatus() : super(kStructSize);
+  UrlLoaderStatus() : super(kVersions.last.size);
 
   static UrlLoaderStatus deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -271,16 +292,26 @@ class UrlLoaderStatus extends bindings.Struct {
     UrlLoaderStatus result = new UrlLoaderStatus();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, true);
       result.error = network_error_mojom.NetworkError.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.isLoading = decoder0.decodeBool(16, 0);
     }
@@ -288,7 +319,7 @@ class UrlLoaderStatus extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(error, 8, true);
     
@@ -303,12 +334,12 @@ class UrlLoaderStatus extends bindings.Struct {
 }
 
 class UrlLoaderStartParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   UrlRequest request = null;
 
-  UrlLoaderStartParams() : super(kStructSize);
+  UrlLoaderStartParams() : super(kVersions.last.size);
 
   static UrlLoaderStartParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -321,11 +352,21 @@ class UrlLoaderStartParams extends bindings.Struct {
     UrlLoaderStartParams result = new UrlLoaderStartParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.request = UrlRequest.decode(decoder1);
@@ -334,7 +375,7 @@ class UrlLoaderStartParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(request, 8, false);
   }
@@ -346,12 +387,12 @@ class UrlLoaderStartParams extends bindings.Struct {
 }
 
 class UrlLoaderStartResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   UrlResponse response = null;
 
-  UrlLoaderStartResponseParams() : super(kStructSize);
+  UrlLoaderStartResponseParams() : super(kVersions.last.size);
 
   static UrlLoaderStartResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -364,11 +405,21 @@ class UrlLoaderStartResponseParams extends bindings.Struct {
     UrlLoaderStartResponseParams result = new UrlLoaderStartResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.response = UrlResponse.decode(decoder1);
@@ -377,7 +428,7 @@ class UrlLoaderStartResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(response, 8, false);
   }
@@ -389,11 +440,11 @@ class UrlLoaderStartResponseParams extends bindings.Struct {
 }
 
 class UrlLoaderFollowRedirectParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  UrlLoaderFollowRedirectParams() : super(kStructSize);
+  UrlLoaderFollowRedirectParams() : super(kVersions.last.size);
 
   static UrlLoaderFollowRedirectParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -406,15 +457,25 @@ class UrlLoaderFollowRedirectParams extends bindings.Struct {
     UrlLoaderFollowRedirectParams result = new UrlLoaderFollowRedirectParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -423,12 +484,12 @@ class UrlLoaderFollowRedirectParams extends bindings.Struct {
 }
 
 class UrlLoaderFollowRedirectResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   UrlResponse response = null;
 
-  UrlLoaderFollowRedirectResponseParams() : super(kStructSize);
+  UrlLoaderFollowRedirectResponseParams() : super(kVersions.last.size);
 
   static UrlLoaderFollowRedirectResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -441,11 +502,21 @@ class UrlLoaderFollowRedirectResponseParams extends bindings.Struct {
     UrlLoaderFollowRedirectResponseParams result = new UrlLoaderFollowRedirectResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.response = UrlResponse.decode(decoder1);
@@ -454,7 +525,7 @@ class UrlLoaderFollowRedirectResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(response, 8, false);
   }
@@ -466,11 +537,11 @@ class UrlLoaderFollowRedirectResponseParams extends bindings.Struct {
 }
 
 class UrlLoaderQueryStatusParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  UrlLoaderQueryStatusParams() : super(kStructSize);
+  UrlLoaderQueryStatusParams() : super(kVersions.last.size);
 
   static UrlLoaderQueryStatusParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -483,15 +554,25 @@ class UrlLoaderQueryStatusParams extends bindings.Struct {
     UrlLoaderQueryStatusParams result = new UrlLoaderQueryStatusParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -500,12 +581,12 @@ class UrlLoaderQueryStatusParams extends bindings.Struct {
 }
 
 class UrlLoaderQueryStatusResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   UrlLoaderStatus status = null;
 
-  UrlLoaderQueryStatusResponseParams() : super(kStructSize);
+  UrlLoaderQueryStatusResponseParams() : super(kVersions.last.size);
 
   static UrlLoaderQueryStatusResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -518,11 +599,21 @@ class UrlLoaderQueryStatusResponseParams extends bindings.Struct {
     UrlLoaderQueryStatusResponseParams result = new UrlLoaderQueryStatusResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.status = UrlLoaderStatus.decode(decoder1);
@@ -531,7 +622,7 @@ class UrlLoaderQueryStatusResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(status, 8, false);
   }
@@ -692,7 +783,7 @@ class UrlLoaderProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new UrlLoaderProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "UrlLoaderProxy($impl)";

@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 import '../fn.dart';
-import 'material.dart';
 import '../theme/colors.dart';
+import 'ink_well.dart';
+import 'material.dart';
 
 class FloatingActionButton extends Component {
   // TODO(abarth): We need a better way to become a container for absolutely
@@ -20,6 +21,7 @@ class FloatingActionButton extends Component {
     transform: translateX(0);
     position: absolute;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     top: 0;
@@ -28,28 +30,22 @@ class FloatingActionButton extends Component {
     bottom: 0;
     -webkit-clip-path: circle(28px at center);''');
 
-  Node content;
+  UINode content;
   int level;
 
   FloatingActionButton({ Object key, this.content, this.level: 0 })
       : super(key: key);
 
-  Node build() {
-    List<Node> children = [];
+  UINode build() {
+    List<UINode> children = [];
 
     if (content != null)
       children.add(content);
 
-    return new Container(
-      key: "Container",
-      style: level > 0 ? _style.extend(Material.shadowStyle[level]) : _style,
-      children: [
-        new Material(
-          key: "Clip",
-          style: _clipStyle,
-          children: children
-        )
-      ]
-    );
+    return new Material(
+      content: new Container(
+        style: _style,
+        children: [new StyleNode(new InkWell(children: children), _clipStyle)]),
+      level: level);
   }
 }

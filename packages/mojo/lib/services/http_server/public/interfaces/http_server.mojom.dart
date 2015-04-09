@@ -5,20 +5,21 @@
 library http_server.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/http_server/public/interfaces/http_request.mojom.dart' as http_request_mojom;
 import 'package:mojo/services/http_server/public/interfaces/http_response.mojom.dart' as http_response_mojom;
 
 
 class HttpServerSetHandlerParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   String pattern = null;
   Object handler = null;
 
-  HttpServerSetHandlerParams() : super(kStructSize);
+  HttpServerSetHandlerParams() : super(kVersions.last.size);
 
   static HttpServerSetHandlerParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -31,15 +32,25 @@ class HttpServerSetHandlerParams extends bindings.Struct {
     HttpServerSetHandlerParams result = new HttpServerSetHandlerParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pattern = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.handler = decoder0.decodeServiceInterface(16, false, HttpHandlerProxy.newFromEndpoint);
     }
@@ -47,7 +58,7 @@ class HttpServerSetHandlerParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(pattern, 8, false);
     
@@ -62,12 +73,12 @@ class HttpServerSetHandlerParams extends bindings.Struct {
 }
 
 class HttpServerSetHandlerResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  HttpServerSetHandlerResponseParams() : super(kStructSize);
+  HttpServerSetHandlerResponseParams() : super(kVersions.last.size);
 
   static HttpServerSetHandlerResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -80,11 +91,21 @@ class HttpServerSetHandlerResponseParams extends bindings.Struct {
     HttpServerSetHandlerResponseParams result = new HttpServerSetHandlerResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -92,7 +113,7 @@ class HttpServerSetHandlerResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -104,11 +125,11 @@ class HttpServerSetHandlerResponseParams extends bindings.Struct {
 }
 
 class HttpServerGetPortParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  HttpServerGetPortParams() : super(kStructSize);
+  HttpServerGetPortParams() : super(kVersions.last.size);
 
   static HttpServerGetPortParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -121,15 +142,25 @@ class HttpServerGetPortParams extends bindings.Struct {
     HttpServerGetPortParams result = new HttpServerGetPortParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -138,12 +169,12 @@ class HttpServerGetPortParams extends bindings.Struct {
 }
 
 class HttpServerGetPortResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int port = 0;
 
-  HttpServerGetPortResponseParams() : super(kStructSize);
+  HttpServerGetPortResponseParams() : super(kVersions.last.size);
 
   static HttpServerGetPortResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -156,11 +187,21 @@ class HttpServerGetPortResponseParams extends bindings.Struct {
     HttpServerGetPortResponseParams result = new HttpServerGetPortResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.port = decoder0.decodeUint16(8);
     }
@@ -168,7 +209,7 @@ class HttpServerGetPortResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint16(port, 8);
   }
@@ -180,12 +221,12 @@ class HttpServerGetPortResponseParams extends bindings.Struct {
 }
 
 class HttpHandlerHandleRequestParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   http_request_mojom.HttpRequest request = null;
 
-  HttpHandlerHandleRequestParams() : super(kStructSize);
+  HttpHandlerHandleRequestParams() : super(kVersions.last.size);
 
   static HttpHandlerHandleRequestParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -198,11 +239,21 @@ class HttpHandlerHandleRequestParams extends bindings.Struct {
     HttpHandlerHandleRequestParams result = new HttpHandlerHandleRequestParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.request = http_request_mojom.HttpRequest.decode(decoder1);
@@ -211,7 +262,7 @@ class HttpHandlerHandleRequestParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(request, 8, false);
   }
@@ -223,12 +274,12 @@ class HttpHandlerHandleRequestParams extends bindings.Struct {
 }
 
 class HttpHandlerHandleRequestResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   http_response_mojom.HttpResponse response = null;
 
-  HttpHandlerHandleRequestResponseParams() : super(kStructSize);
+  HttpHandlerHandleRequestResponseParams() : super(kVersions.last.size);
 
   static HttpHandlerHandleRequestResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -241,11 +292,21 @@ class HttpHandlerHandleRequestResponseParams extends bindings.Struct {
     HttpHandlerHandleRequestResponseParams result = new HttpHandlerHandleRequestResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.response = http_response_mojom.HttpResponse.decode(decoder1);
@@ -254,7 +315,7 @@ class HttpHandlerHandleRequestResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(response, 8, false);
   }
@@ -391,7 +452,7 @@ class HttpServerProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new HttpServerProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "HttpServerProxy($impl)";
@@ -578,7 +639,7 @@ class HttpHandlerProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new HttpHandlerProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "HttpHandlerProxy($impl)";

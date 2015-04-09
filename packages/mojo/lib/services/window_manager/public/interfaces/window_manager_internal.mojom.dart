@@ -5,20 +5,21 @@
 library window_manager_internal.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/geometry/public/interfaces/geometry.mojom.dart' as geometry_mojom;
 import 'package:mojo/services/input_events/public/interfaces/input_events.mojom.dart' as input_events_mojom;
 
 
 class WindowManagerInternalCreateWindowManagerForViewManagerClientParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int connectionId = 0;
   core.MojoMessagePipeEndpoint windowManagerPipe = null;
 
-  WindowManagerInternalCreateWindowManagerForViewManagerClientParams() : super(kStructSize);
+  WindowManagerInternalCreateWindowManagerForViewManagerClientParams() : super(kVersions.last.size);
 
   static WindowManagerInternalCreateWindowManagerForViewManagerClientParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -31,15 +32,25 @@ class WindowManagerInternalCreateWindowManagerForViewManagerClientParams extends
     WindowManagerInternalCreateWindowManagerForViewManagerClientParams result = new WindowManagerInternalCreateWindowManagerForViewManagerClientParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.connectionId = decoder0.decodeUint16(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.windowManagerPipe = decoder0.decodeMessagePipeHandle(12, false);
     }
@@ -47,7 +58,7 @@ class WindowManagerInternalCreateWindowManagerForViewManagerClientParams extends
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint16(connectionId, 8);
     
@@ -62,12 +73,12 @@ class WindowManagerInternalCreateWindowManagerForViewManagerClientParams extends
 }
 
 class WindowManagerInternalSetViewManagerClientParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   core.MojoMessagePipeEndpoint viewManagerClientRequest = null;
 
-  WindowManagerInternalSetViewManagerClientParams() : super(kStructSize);
+  WindowManagerInternalSetViewManagerClientParams() : super(kVersions.last.size);
 
   static WindowManagerInternalSetViewManagerClientParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -80,11 +91,21 @@ class WindowManagerInternalSetViewManagerClientParams extends bindings.Struct {
     WindowManagerInternalSetViewManagerClientParams result = new WindowManagerInternalSetViewManagerClientParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewManagerClientRequest = decoder0.decodeMessagePipeHandle(8, false);
     }
@@ -92,7 +113,7 @@ class WindowManagerInternalSetViewManagerClientParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeMessagePipeHandle(viewManagerClientRequest, 8, false);
   }
@@ -104,13 +125,13 @@ class WindowManagerInternalSetViewManagerClientParams extends bindings.Struct {
 }
 
 class WindowManagerInternalClientDispatchInputEventToViewParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   input_events_mojom.Event event = null;
 
-  WindowManagerInternalClientDispatchInputEventToViewParams() : super(kStructSize);
+  WindowManagerInternalClientDispatchInputEventToViewParams() : super(kVersions.last.size);
 
   static WindowManagerInternalClientDispatchInputEventToViewParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -123,15 +144,25 @@ class WindowManagerInternalClientDispatchInputEventToViewParams extends bindings
     WindowManagerInternalClientDispatchInputEventToViewParams result = new WindowManagerInternalClientDispatchInputEventToViewParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.event = input_events_mojom.Event.decode(decoder1);
@@ -140,7 +171,7 @@ class WindowManagerInternalClientDispatchInputEventToViewParams extends bindings
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -155,12 +186,12 @@ class WindowManagerInternalClientDispatchInputEventToViewParams extends bindings
 }
 
 class WindowManagerInternalClientSetViewportSizeParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   geometry_mojom.Size size = null;
 
-  WindowManagerInternalClientSetViewportSizeParams() : super(kStructSize);
+  WindowManagerInternalClientSetViewportSizeParams() : super(kVersions.last.size);
 
   static WindowManagerInternalClientSetViewportSizeParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -173,11 +204,21 @@ class WindowManagerInternalClientSetViewportSizeParams extends bindings.Struct {
     WindowManagerInternalClientSetViewportSizeParams result = new WindowManagerInternalClientSetViewportSizeParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.size = geometry_mojom.Size.decode(decoder1);
@@ -186,7 +227,7 @@ class WindowManagerInternalClientSetViewportSizeParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(size, 8, false);
   }
@@ -198,12 +239,12 @@ class WindowManagerInternalClientSetViewportSizeParams extends bindings.Struct {
 }
 
 class WindowManagerInternalClientCloneAndAnimateParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
 
-  WindowManagerInternalClientCloneAndAnimateParams() : super(kStructSize);
+  WindowManagerInternalClientCloneAndAnimateParams() : super(kVersions.last.size);
 
   static WindowManagerInternalClientCloneAndAnimateParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -216,11 +257,21 @@ class WindowManagerInternalClientCloneAndAnimateParams extends bindings.Struct {
     WindowManagerInternalClientCloneAndAnimateParams result = new WindowManagerInternalClientCloneAndAnimateParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
@@ -228,7 +279,7 @@ class WindowManagerInternalClientCloneAndAnimateParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
   }
@@ -332,7 +383,7 @@ class WindowManagerInternalProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new WindowManagerInternalProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "WindowManagerInternalProxy($impl)";
@@ -495,7 +546,7 @@ class WindowManagerInternalClientProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new WindowManagerInternalClientProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "WindowManagerInternalClientProxy($impl)";

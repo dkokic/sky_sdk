@@ -5,19 +5,20 @@
 library test_harness.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/input_events/public/interfaces/input_events.mojom.dart' as input_events_mojom;
 
 
 class TestHarnessOnTestCompleteParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   String testResult = null;
   List<int> pixels = null;
 
-  TestHarnessOnTestCompleteParams() : super(kStructSize);
+  TestHarnessOnTestCompleteParams() : super(kVersions.last.size);
 
   static TestHarnessOnTestCompleteParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -30,15 +31,25 @@ class TestHarnessOnTestCompleteParams extends bindings.Struct {
     TestHarnessOnTestCompleteParams result = new TestHarnessOnTestCompleteParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.testResult = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.pixels = decoder0.decodeUint8Array(16, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
     }
@@ -46,7 +57,7 @@ class TestHarnessOnTestCompleteParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(testResult, 8, false);
     
@@ -61,12 +72,12 @@ class TestHarnessOnTestCompleteParams extends bindings.Struct {
 }
 
 class TestHarnessDispatchInputEventParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   input_events_mojom.Event event = null;
 
-  TestHarnessDispatchInputEventParams() : super(kStructSize);
+  TestHarnessDispatchInputEventParams() : super(kVersions.last.size);
 
   static TestHarnessDispatchInputEventParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -79,11 +90,21 @@ class TestHarnessDispatchInputEventParams extends bindings.Struct {
     TestHarnessDispatchInputEventParams result = new TestHarnessDispatchInputEventParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.event = input_events_mojom.Event.decode(decoder1);
@@ -92,7 +113,7 @@ class TestHarnessDispatchInputEventParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(event, 8, false);
   }
@@ -196,7 +217,7 @@ class TestHarnessProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new TestHarnessProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "TestHarnessProxy($impl)";

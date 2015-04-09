@@ -5,8 +5,9 @@
 library sensors.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 
 final int SensorType_ACCELEROMETER = 0;
 final int SensorType_AMBIENT_TEMPERATURE = SensorType_ACCELEROMETER + 1;
@@ -30,14 +31,14 @@ final int SensorType_STEP_DETECTOR = SensorType_STEP_COUNTER + 1;
 
 
 class SensorData extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   int accuracy = 0;
   int timeStamp = 0;
   List<double> values = null;
 
-  SensorData() : super(kStructSize);
+  SensorData() : super(kVersions.last.size);
 
   static SensorData deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -50,19 +51,29 @@ class SensorData extends bindings.Struct {
     SensorData result = new SensorData();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.accuracy = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.timeStamp = decoder0.decodeInt64(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.values = decoder0.decodeFloatArray(24, bindings.kNothingNullable, bindings.kUnspecifiedArrayLength);
     }
@@ -70,7 +81,7 @@ class SensorData extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(accuracy, 8);
     
@@ -88,12 +99,12 @@ class SensorData extends bindings.Struct {
 }
 
 class SensorListenerOnAccuracyChangedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int accuracy = 0;
 
-  SensorListenerOnAccuracyChangedParams() : super(kStructSize);
+  SensorListenerOnAccuracyChangedParams() : super(kVersions.last.size);
 
   static SensorListenerOnAccuracyChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -106,11 +117,21 @@ class SensorListenerOnAccuracyChangedParams extends bindings.Struct {
     SensorListenerOnAccuracyChangedParams result = new SensorListenerOnAccuracyChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.accuracy = decoder0.decodeInt32(8);
     }
@@ -118,7 +139,7 @@ class SensorListenerOnAccuracyChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(accuracy, 8);
   }
@@ -130,12 +151,12 @@ class SensorListenerOnAccuracyChangedParams extends bindings.Struct {
 }
 
 class SensorListenerOnSensorChangedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   SensorData data = null;
 
-  SensorListenerOnSensorChangedParams() : super(kStructSize);
+  SensorListenerOnSensorChangedParams() : super(kVersions.last.size);
 
   static SensorListenerOnSensorChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -148,11 +169,21 @@ class SensorListenerOnSensorChangedParams extends bindings.Struct {
     SensorListenerOnSensorChangedParams result = new SensorListenerOnSensorChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.data = SensorData.decode(decoder1);
@@ -161,7 +192,7 @@ class SensorListenerOnSensorChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(data, 8, false);
   }
@@ -173,13 +204,13 @@ class SensorListenerOnSensorChangedParams extends bindings.Struct {
 }
 
 class SensorServiceAddListenerParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int type = 0;
   Object listener = null;
 
-  SensorServiceAddListenerParams() : super(kStructSize);
+  SensorServiceAddListenerParams() : super(kVersions.last.size);
 
   static SensorServiceAddListenerParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -192,15 +223,25 @@ class SensorServiceAddListenerParams extends bindings.Struct {
     SensorServiceAddListenerParams result = new SensorServiceAddListenerParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.type = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.listener = decoder0.decodeServiceInterface(12, false, SensorListenerProxy.newFromEndpoint);
     }
@@ -208,7 +249,7 @@ class SensorServiceAddListenerParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(type, 8);
     
@@ -314,7 +355,7 @@ class SensorListenerProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new SensorListenerProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "SensorListenerProxy($impl)";
@@ -459,7 +500,7 @@ class SensorServiceProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new SensorServiceProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "SensorServiceProxy($impl)";

@@ -5,8 +5,9 @@
 library quads.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/geometry/public/interfaces/geometry.mojom.dart' as geometry_mojom;
 import 'package:mojo/services/surfaces/public/interfaces/surface_id.mojom.dart' as surface_id_mojom;
 
@@ -61,12 +62,12 @@ final int SkXfermode_kLastMode = SkXfermode_kLuminosity_Mode;
 
 
 class Color extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int rgba = 0;
 
-  Color() : super(kStructSize);
+  Color() : super(kVersions.last.size);
 
   static Color deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -79,11 +80,21 @@ class Color extends bindings.Struct {
     Color result = new Color();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.rgba = decoder0.decodeUint32(8);
     }
@@ -91,7 +102,7 @@ class Color extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(rgba, 8);
   }
@@ -103,11 +114,11 @@ class Color extends bindings.Struct {
 }
 
 class CheckerboardQuadState extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  CheckerboardQuadState() : super(kStructSize);
+  CheckerboardQuadState() : super(kVersions.last.size);
 
   static CheckerboardQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -120,15 +131,25 @@ class CheckerboardQuadState extends bindings.Struct {
     CheckerboardQuadState result = new CheckerboardQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -137,11 +158,11 @@ class CheckerboardQuadState extends bindings.Struct {
 }
 
 class DebugBorderQuadState extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  DebugBorderQuadState() : super(kStructSize);
+  DebugBorderQuadState() : super(kVersions.last.size);
 
   static DebugBorderQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -154,15 +175,25 @@ class DebugBorderQuadState extends bindings.Struct {
     DebugBorderQuadState result = new DebugBorderQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -171,11 +202,11 @@ class DebugBorderQuadState extends bindings.Struct {
 }
 
 class IoSurfaceContentQuadState extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  IoSurfaceContentQuadState() : super(kStructSize);
+  IoSurfaceContentQuadState() : super(kVersions.last.size);
 
   static IoSurfaceContentQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -188,15 +219,25 @@ class IoSurfaceContentQuadState extends bindings.Struct {
     IoSurfaceContentQuadState result = new IoSurfaceContentQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -205,13 +246,13 @@ class IoSurfaceContentQuadState extends bindings.Struct {
 }
 
 class RenderPassId extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int layerId = 0;
   int index = 0;
 
-  RenderPassId() : super(kStructSize);
+  RenderPassId() : super(kVersions.last.size);
 
   static RenderPassId deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -224,15 +265,25 @@ class RenderPassId extends bindings.Struct {
     RenderPassId result = new RenderPassId();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.layerId = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.index = decoder0.decodeInt32(12);
     }
@@ -240,7 +291,7 @@ class RenderPassId extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(layerId, 8);
     
@@ -255,16 +306,16 @@ class RenderPassId extends bindings.Struct {
 }
 
 class RenderPassQuadState extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   RenderPassId renderPassId = null;
   int maskResourceId = 0;
   geometry_mojom.PointF maskUvScale = null;
   geometry_mojom.Size maskTextureSize = null;
   geometry_mojom.PointF filtersScale = null;
 
-  RenderPassQuadState() : super(kStructSize);
+  RenderPassQuadState() : super(kVersions.last.size);
 
   static RenderPassQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -277,30 +328,40 @@ class RenderPassQuadState extends bindings.Struct {
     RenderPassQuadState result = new RenderPassQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.renderPassId = RenderPassId.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.maskResourceId = decoder0.decodeUint32(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.maskUvScale = geometry_mojom.PointF.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, false);
       result.maskTextureSize = geometry_mojom.Size.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(40, false);
       result.filtersScale = geometry_mojom.PointF.decode(decoder1);
@@ -309,7 +370,7 @@ class RenderPassQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(renderPassId, 8, false);
     
@@ -333,13 +394,13 @@ class RenderPassQuadState extends bindings.Struct {
 }
 
 class SolidColorQuadState extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   Color color = null;
   bool forceAntiAliasingOff = false;
 
-  SolidColorQuadState() : super(kStructSize);
+  SolidColorQuadState() : super(kVersions.last.size);
 
   static SolidColorQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -352,16 +413,26 @@ class SolidColorQuadState extends bindings.Struct {
     SolidColorQuadState result = new SolidColorQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.color = Color.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.forceAntiAliasingOff = decoder0.decodeBool(16, 0);
     }
@@ -369,7 +440,7 @@ class SolidColorQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(color, 8, false);
     
@@ -384,12 +455,12 @@ class SolidColorQuadState extends bindings.Struct {
 }
 
 class SurfaceQuadState extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   surface_id_mojom.SurfaceId surface = null;
 
-  SurfaceQuadState() : super(kStructSize);
+  SurfaceQuadState() : super(kVersions.last.size);
 
   static SurfaceQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -402,11 +473,21 @@ class SurfaceQuadState extends bindings.Struct {
     SurfaceQuadState result = new SurfaceQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.surface = surface_id_mojom.SurfaceId.decode(decoder1);
@@ -415,7 +496,7 @@ class SurfaceQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(surface, 8, false);
   }
@@ -427,9 +508,9 @@ class SurfaceQuadState extends bindings.Struct {
 }
 
 class TextureQuadState extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   int resourceId = 0;
   bool premultipliedAlpha = false;
   bool flipped = false;
@@ -439,7 +520,7 @@ class TextureQuadState extends bindings.Struct {
   Color backgroundColor = null;
   List<double> vertexOpacity = null;
 
-  TextureQuadState() : super(kStructSize);
+  TextureQuadState() : super(kVersions.last.size);
 
   static TextureQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -452,42 +533,52 @@ class TextureQuadState extends bindings.Struct {
     TextureQuadState result = new TextureQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.resourceId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.premultipliedAlpha = decoder0.decodeBool(12, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.flipped = decoder0.decodeBool(12, 1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.nearestNeighbor = decoder0.decodeBool(12, 2);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.uvTopLeft = geometry_mojom.PointF.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.uvBottomRight = geometry_mojom.PointF.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, false);
       result.backgroundColor = Color.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.vertexOpacity = decoder0.decodeFloatArray(40, bindings.kNothingNullable, 4);
     }
@@ -495,7 +586,7 @@ class TextureQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(resourceId, 8);
     
@@ -528,16 +619,16 @@ class TextureQuadState extends bindings.Struct {
 }
 
 class TileQuadState extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   geometry_mojom.RectF texCoordRect = null;
   geometry_mojom.Size textureSize = null;
   bool swizzleContents = false;
   bool nearestNeighbor = false;
   int resourceId = 0;
 
-  TileQuadState() : super(kStructSize);
+  TileQuadState() : super(kVersions.last.size);
 
   static TileQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -550,29 +641,39 @@ class TileQuadState extends bindings.Struct {
     TileQuadState result = new TileQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.texCoordRect = geometry_mojom.RectF.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.textureSize = geometry_mojom.Size.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.swizzleContents = decoder0.decodeBool(24, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.nearestNeighbor = decoder0.decodeBool(24, 1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.resourceId = decoder0.decodeUint32(28);
     }
@@ -580,7 +681,7 @@ class TileQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(texCoordRect, 8, false);
     
@@ -604,11 +705,11 @@ class TileQuadState extends bindings.Struct {
 }
 
 class StreamVideoQuadState extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  StreamVideoQuadState() : super(kStructSize);
+  StreamVideoQuadState() : super(kVersions.last.size);
 
   static StreamVideoQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -621,15 +722,25 @@ class StreamVideoQuadState extends bindings.Struct {
     StreamVideoQuadState result = new StreamVideoQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -638,9 +749,9 @@ class StreamVideoQuadState extends bindings.Struct {
 }
 
 class YuvVideoQuadState extends bindings.Struct {
-  static const int kStructSize = 40;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(40, 0)
+  ];
   geometry_mojom.RectF texCoordRect = null;
   int yPlaneResourceId = 0;
   int uPlaneResourceId = 0;
@@ -648,7 +759,7 @@ class YuvVideoQuadState extends bindings.Struct {
   int aPlaneResourceId = 0;
   int colorSpace = 0;
 
-  YuvVideoQuadState() : super(kStructSize);
+  YuvVideoQuadState() : super(kVersions.last.size);
 
   static YuvVideoQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -661,32 +772,42 @@ class YuvVideoQuadState extends bindings.Struct {
     YuvVideoQuadState result = new YuvVideoQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.texCoordRect = geometry_mojom.RectF.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.yPlaneResourceId = decoder0.decodeUint32(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.uPlaneResourceId = decoder0.decodeUint32(20);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.vPlaneResourceId = decoder0.decodeUint32(24);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.aPlaneResourceId = decoder0.decodeUint32(28);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.colorSpace = decoder0.decodeInt32(32);
     }
@@ -694,7 +815,7 @@ class YuvVideoQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(texCoordRect, 8, false);
     
@@ -721,9 +842,9 @@ class YuvVideoQuadState extends bindings.Struct {
 }
 
 class Quad extends bindings.Struct {
-  static const int kStructSize = 128;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(128, 0)
+  ];
   int material = 0;
   bool needsBlending = false;
   geometry_mojom.Rect rect = null;
@@ -741,7 +862,7 @@ class Quad extends bindings.Struct {
   StreamVideoQuadState streamVideoQuadState = null;
   YuvVideoQuadState yuvVideoQuadState = null;
 
-  Quad() : super(kStructSize);
+  Quad() : super(kVersions.last.size);
 
   static Quad deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -754,83 +875,93 @@ class Quad extends bindings.Struct {
     Quad result = new Quad();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.material = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.needsBlending = decoder0.decodeBool(12, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.rect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.opaqueRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, false);
       result.visibleRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.sharedQuadStateIndex = decoder0.decodeUint32(40);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(48, true);
       result.checkerboardQuadState = CheckerboardQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(56, true);
       result.debugBorderQuadState = DebugBorderQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(64, true);
       result.ioSurfaceQuadState = IoSurfaceContentQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(72, true);
       result.renderPassQuadState = RenderPassQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(80, true);
       result.solidColorQuadState = SolidColorQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(88, true);
       result.surfaceQuadState = SurfaceQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(96, true);
       result.textureQuadState = TextureQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(104, true);
       result.tileQuadState = TileQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(112, true);
       result.streamVideoQuadState = StreamVideoQuadState.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(120, true);
       result.yuvVideoQuadState = YuvVideoQuadState.decode(decoder1);
@@ -839,7 +970,7 @@ class Quad extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(material, 8);
     
@@ -896,9 +1027,9 @@ class Quad extends bindings.Struct {
 }
 
 class SharedQuadState extends bindings.Struct {
-  static const int kStructSize = 56;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(56, 0)
+  ];
   geometry_mojom.Transform contentToTargetTransform = null;
   geometry_mojom.Size contentBounds = null;
   geometry_mojom.Rect visibleContentRect = null;
@@ -908,7 +1039,7 @@ class SharedQuadState extends bindings.Struct {
   int blendMode = 0;
   int sortingContextId = 0;
 
-  SharedQuadState() : super(kStructSize);
+  SharedQuadState() : super(kVersions.last.size);
 
   static SharedQuadState deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -921,43 +1052,53 @@ class SharedQuadState extends bindings.Struct {
     SharedQuadState result = new SharedQuadState();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.contentToTargetTransform = geometry_mojom.Transform.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.contentBounds = geometry_mojom.Size.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.visibleContentRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, false);
       result.clipRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.isClipped = decoder0.decodeBool(40, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.opacity = decoder0.decodeFloat(44);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.blendMode = decoder0.decodeInt32(48);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.sortingContextId = decoder0.decodeInt32(52);
     }
@@ -965,7 +1106,7 @@ class SharedQuadState extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(contentToTargetTransform, 8, false);
     
@@ -998,9 +1139,9 @@ class SharedQuadState extends bindings.Struct {
 }
 
 class Pass extends bindings.Struct {
-  static const int kStructSize = 56;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(56, 0)
+  ];
   int id = 0;
   bool hasTransparentBackground = false;
   geometry_mojom.Rect outputRect = null;
@@ -1009,7 +1150,7 @@ class Pass extends bindings.Struct {
   List<Quad> quads = null;
   List<SharedQuadState> sharedQuadStates = null;
 
-  Pass() : super(kStructSize);
+  Pass() : super(kVersions.last.size);
 
   static Pass deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1022,34 +1163,44 @@ class Pass extends bindings.Struct {
     Pass result = new Pass();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.id = decoder0.decodeInt32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.hasTransparentBackground = decoder0.decodeBool(12, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.outputRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.damageRect = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(32, false);
       result.transformToRootTarget = geometry_mojom.Transform.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(40, false);
       {
@@ -1062,7 +1213,7 @@ class Pass extends bindings.Struct {
         }
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(48, false);
       {
@@ -1079,7 +1230,7 @@ class Pass extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(id, 8);
     

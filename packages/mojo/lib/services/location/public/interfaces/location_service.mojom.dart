@@ -5,18 +5,19 @@
 library location_service.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/location/public/interfaces/location.mojom.dart' as location_mojom;
 
 
 class LocationServiceGetNextLocationParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int priority = 0;
 
-  LocationServiceGetNextLocationParams() : super(kStructSize);
+  LocationServiceGetNextLocationParams() : super(kVersions.last.size);
 
   static LocationServiceGetNextLocationParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -29,11 +30,21 @@ class LocationServiceGetNextLocationParams extends bindings.Struct {
     LocationServiceGetNextLocationParams result = new LocationServiceGetNextLocationParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.priority = decoder0.decodeInt32(8);
     }
@@ -41,7 +52,7 @@ class LocationServiceGetNextLocationParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(priority, 8);
   }
@@ -53,12 +64,12 @@ class LocationServiceGetNextLocationParams extends bindings.Struct {
 }
 
 class LocationServiceGetNextLocationResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   location_mojom.Location location = null;
 
-  LocationServiceGetNextLocationResponseParams() : super(kStructSize);
+  LocationServiceGetNextLocationResponseParams() : super(kVersions.last.size);
 
   static LocationServiceGetNextLocationResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -71,11 +82,21 @@ class LocationServiceGetNextLocationResponseParams extends bindings.Struct {
     LocationServiceGetNextLocationResponseParams result = new LocationServiceGetNextLocationResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, true);
       result.location = location_mojom.Location.decode(decoder1);
@@ -84,7 +105,7 @@ class LocationServiceGetNextLocationResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(location, 8, true);
   }
@@ -200,7 +221,7 @@ class LocationServiceProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new LocationServiceProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "LocationServiceProxy($impl)";

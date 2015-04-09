@@ -5,8 +5,9 @@
 library view_manager.mojom;
 
 import 'dart:async';
-import 'dart:mojo.bindings' as bindings;
-import 'dart:mojo.core' as core;
+
+import 'package:mojo/public/dart/bindings.dart' as bindings;
+import 'package:mojo/public/dart/core.dart' as core;
 import 'package:mojo/services/geometry/public/interfaces/geometry.mojom.dart' as geometry_mojom;
 import 'package:mojo/services/input_events/public/interfaces/input_events.mojom.dart' as input_events_mojom;
 import 'package:mojo/public/interfaces/application/service_provider.mojom.dart' as service_provider_mojom;
@@ -20,9 +21,9 @@ final int ErrorCode_ILLEGAL_ARGUMENT = ErrorCode_VALUE_IN_USE + 1;
 
 
 class ViewData extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   int parentId = 0;
   int viewId = 0;
   geometry_mojom.Rect bounds = null;
@@ -31,7 +32,7 @@ class ViewData extends bindings.Struct {
   bool drawn = false;
   native_viewport_mojom.ViewportMetrics viewportMetrics = null;
 
-  ViewData() : super(kStructSize);
+  ViewData() : super(kVersions.last.size);
 
   static ViewData deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -44,24 +45,34 @@ class ViewData extends bindings.Struct {
     ViewData result = new ViewData();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.parentId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.bounds = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       {
@@ -96,15 +107,15 @@ class ViewData extends bindings.Struct {
             keys0, values0);
       }
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.visible = decoder0.decodeBool(32, 0);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.drawn = decoder0.decodeBool(32, 1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(40, false);
       result.viewportMetrics = native_viewport_mojom.ViewportMetrics.decode(decoder1);
@@ -113,7 +124,7 @@ class ViewData extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(parentId, 8);
     
@@ -166,12 +177,12 @@ class ViewData extends bindings.Struct {
 }
 
 class ViewManagerServiceCreateViewParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
 
-  ViewManagerServiceCreateViewParams() : super(kStructSize);
+  ViewManagerServiceCreateViewParams() : super(kVersions.last.size);
 
   static ViewManagerServiceCreateViewParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -184,11 +195,21 @@ class ViewManagerServiceCreateViewParams extends bindings.Struct {
     ViewManagerServiceCreateViewParams result = new ViewManagerServiceCreateViewParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
@@ -196,7 +217,7 @@ class ViewManagerServiceCreateViewParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
   }
@@ -208,12 +229,12 @@ class ViewManagerServiceCreateViewParams extends bindings.Struct {
 }
 
 class ViewManagerServiceCreateViewResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int errorCode = 0;
 
-  ViewManagerServiceCreateViewResponseParams() : super(kStructSize);
+  ViewManagerServiceCreateViewResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceCreateViewResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -226,11 +247,21 @@ class ViewManagerServiceCreateViewResponseParams extends bindings.Struct {
     ViewManagerServiceCreateViewResponseParams result = new ViewManagerServiceCreateViewResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.errorCode = decoder0.decodeInt32(8);
     }
@@ -238,7 +269,7 @@ class ViewManagerServiceCreateViewResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeInt32(errorCode, 8);
   }
@@ -250,12 +281,12 @@ class ViewManagerServiceCreateViewResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceDeleteViewParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
 
-  ViewManagerServiceDeleteViewParams() : super(kStructSize);
+  ViewManagerServiceDeleteViewParams() : super(kVersions.last.size);
 
   static ViewManagerServiceDeleteViewParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -268,11 +299,21 @@ class ViewManagerServiceDeleteViewParams extends bindings.Struct {
     ViewManagerServiceDeleteViewParams result = new ViewManagerServiceDeleteViewParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
@@ -280,7 +321,7 @@ class ViewManagerServiceDeleteViewParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
   }
@@ -292,12 +333,12 @@ class ViewManagerServiceDeleteViewParams extends bindings.Struct {
 }
 
 class ViewManagerServiceDeleteViewResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceDeleteViewResponseParams() : super(kStructSize);
+  ViewManagerServiceDeleteViewResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceDeleteViewResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -310,11 +351,21 @@ class ViewManagerServiceDeleteViewResponseParams extends bindings.Struct {
     ViewManagerServiceDeleteViewResponseParams result = new ViewManagerServiceDeleteViewResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -322,7 +373,7 @@ class ViewManagerServiceDeleteViewResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -334,13 +385,13 @@ class ViewManagerServiceDeleteViewResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewBoundsParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   geometry_mojom.Rect bounds = null;
 
-  ViewManagerServiceSetViewBoundsParams() : super(kStructSize);
+  ViewManagerServiceSetViewBoundsParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewBoundsParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -353,15 +404,25 @@ class ViewManagerServiceSetViewBoundsParams extends bindings.Struct {
     ViewManagerServiceSetViewBoundsParams result = new ViewManagerServiceSetViewBoundsParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.bounds = geometry_mojom.Rect.decode(decoder1);
@@ -370,7 +431,7 @@ class ViewManagerServiceSetViewBoundsParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -385,12 +446,12 @@ class ViewManagerServiceSetViewBoundsParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewBoundsResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceSetViewBoundsResponseParams() : super(kStructSize);
+  ViewManagerServiceSetViewBoundsResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewBoundsResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -403,11 +464,21 @@ class ViewManagerServiceSetViewBoundsResponseParams extends bindings.Struct {
     ViewManagerServiceSetViewBoundsResponseParams result = new ViewManagerServiceSetViewBoundsResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -415,7 +486,7 @@ class ViewManagerServiceSetViewBoundsResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -427,13 +498,13 @@ class ViewManagerServiceSetViewBoundsResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewVisibilityParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
   bool visible = false;
 
-  ViewManagerServiceSetViewVisibilityParams() : super(kStructSize);
+  ViewManagerServiceSetViewVisibilityParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewVisibilityParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -446,15 +517,25 @@ class ViewManagerServiceSetViewVisibilityParams extends bindings.Struct {
     ViewManagerServiceSetViewVisibilityParams result = new ViewManagerServiceSetViewVisibilityParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.visible = decoder0.decodeBool(12, 0);
     }
@@ -462,7 +543,7 @@ class ViewManagerServiceSetViewVisibilityParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -477,12 +558,12 @@ class ViewManagerServiceSetViewVisibilityParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewVisibilityResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceSetViewVisibilityResponseParams() : super(kStructSize);
+  ViewManagerServiceSetViewVisibilityResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewVisibilityResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -495,11 +576,21 @@ class ViewManagerServiceSetViewVisibilityResponseParams extends bindings.Struct 
     ViewManagerServiceSetViewVisibilityResponseParams result = new ViewManagerServiceSetViewVisibilityResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -507,7 +598,7 @@ class ViewManagerServiceSetViewVisibilityResponseParams extends bindings.Struct 
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -519,14 +610,14 @@ class ViewManagerServiceSetViewVisibilityResponseParams extends bindings.Struct 
 }
 
 class ViewManagerServiceSetViewPropertyParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   int viewId = 0;
   String name = null;
   List<int> value = null;
 
-  ViewManagerServiceSetViewPropertyParams() : super(kStructSize);
+  ViewManagerServiceSetViewPropertyParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewPropertyParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -539,19 +630,29 @@ class ViewManagerServiceSetViewPropertyParams extends bindings.Struct {
     ViewManagerServiceSetViewPropertyParams result = new ViewManagerServiceSetViewPropertyParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.name = decoder0.decodeString(16, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.value = decoder0.decodeUint8Array(24, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
     }
@@ -559,7 +660,7 @@ class ViewManagerServiceSetViewPropertyParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -577,12 +678,12 @@ class ViewManagerServiceSetViewPropertyParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewPropertyResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceSetViewPropertyResponseParams() : super(kStructSize);
+  ViewManagerServiceSetViewPropertyResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewPropertyResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -595,11 +696,21 @@ class ViewManagerServiceSetViewPropertyResponseParams extends bindings.Struct {
     ViewManagerServiceSetViewPropertyResponseParams result = new ViewManagerServiceSetViewPropertyResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -607,7 +718,7 @@ class ViewManagerServiceSetViewPropertyResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -619,13 +730,13 @@ class ViewManagerServiceSetViewPropertyResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceAddViewParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int parent = 0;
   int child = 0;
 
-  ViewManagerServiceAddViewParams() : super(kStructSize);
+  ViewManagerServiceAddViewParams() : super(kVersions.last.size);
 
   static ViewManagerServiceAddViewParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -638,15 +749,25 @@ class ViewManagerServiceAddViewParams extends bindings.Struct {
     ViewManagerServiceAddViewParams result = new ViewManagerServiceAddViewParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.parent = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.child = decoder0.decodeUint32(12);
     }
@@ -654,7 +775,7 @@ class ViewManagerServiceAddViewParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(parent, 8);
     
@@ -669,12 +790,12 @@ class ViewManagerServiceAddViewParams extends bindings.Struct {
 }
 
 class ViewManagerServiceAddViewResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceAddViewResponseParams() : super(kStructSize);
+  ViewManagerServiceAddViewResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceAddViewResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -687,11 +808,21 @@ class ViewManagerServiceAddViewResponseParams extends bindings.Struct {
     ViewManagerServiceAddViewResponseParams result = new ViewManagerServiceAddViewResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -699,7 +830,7 @@ class ViewManagerServiceAddViewResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -711,12 +842,12 @@ class ViewManagerServiceAddViewResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceRemoveViewFromParentParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
 
-  ViewManagerServiceRemoveViewFromParentParams() : super(kStructSize);
+  ViewManagerServiceRemoveViewFromParentParams() : super(kVersions.last.size);
 
   static ViewManagerServiceRemoveViewFromParentParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -729,11 +860,21 @@ class ViewManagerServiceRemoveViewFromParentParams extends bindings.Struct {
     ViewManagerServiceRemoveViewFromParentParams result = new ViewManagerServiceRemoveViewFromParentParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
@@ -741,7 +882,7 @@ class ViewManagerServiceRemoveViewFromParentParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
   }
@@ -753,12 +894,12 @@ class ViewManagerServiceRemoveViewFromParentParams extends bindings.Struct {
 }
 
 class ViewManagerServiceRemoveViewFromParentResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceRemoveViewFromParentResponseParams() : super(kStructSize);
+  ViewManagerServiceRemoveViewFromParentResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceRemoveViewFromParentResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -771,11 +912,21 @@ class ViewManagerServiceRemoveViewFromParentResponseParams extends bindings.Stru
     ViewManagerServiceRemoveViewFromParentResponseParams result = new ViewManagerServiceRemoveViewFromParentResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -783,7 +934,7 @@ class ViewManagerServiceRemoveViewFromParentResponseParams extends bindings.Stru
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -795,14 +946,14 @@ class ViewManagerServiceRemoveViewFromParentResponseParams extends bindings.Stru
 }
 
 class ViewManagerServiceReorderViewParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   int relativeViewId = 0;
   int direction = 0;
 
-  ViewManagerServiceReorderViewParams() : super(kStructSize);
+  ViewManagerServiceReorderViewParams() : super(kVersions.last.size);
 
   static ViewManagerServiceReorderViewParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -815,19 +966,29 @@ class ViewManagerServiceReorderViewParams extends bindings.Struct {
     ViewManagerServiceReorderViewParams result = new ViewManagerServiceReorderViewParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.relativeViewId = decoder0.decodeUint32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.direction = decoder0.decodeInt32(16);
     }
@@ -835,7 +996,7 @@ class ViewManagerServiceReorderViewParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -853,12 +1014,12 @@ class ViewManagerServiceReorderViewParams extends bindings.Struct {
 }
 
 class ViewManagerServiceReorderViewResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceReorderViewResponseParams() : super(kStructSize);
+  ViewManagerServiceReorderViewResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceReorderViewResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -871,11 +1032,21 @@ class ViewManagerServiceReorderViewResponseParams extends bindings.Struct {
     ViewManagerServiceReorderViewResponseParams result = new ViewManagerServiceReorderViewResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -883,7 +1054,7 @@ class ViewManagerServiceReorderViewResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -895,12 +1066,12 @@ class ViewManagerServiceReorderViewResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceGetViewTreeParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
 
-  ViewManagerServiceGetViewTreeParams() : super(kStructSize);
+  ViewManagerServiceGetViewTreeParams() : super(kVersions.last.size);
 
   static ViewManagerServiceGetViewTreeParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -913,11 +1084,21 @@ class ViewManagerServiceGetViewTreeParams extends bindings.Struct {
     ViewManagerServiceGetViewTreeParams result = new ViewManagerServiceGetViewTreeParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
@@ -925,7 +1106,7 @@ class ViewManagerServiceGetViewTreeParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
   }
@@ -937,12 +1118,12 @@ class ViewManagerServiceGetViewTreeParams extends bindings.Struct {
 }
 
 class ViewManagerServiceGetViewTreeResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   List<ViewData> views = null;
 
-  ViewManagerServiceGetViewTreeResponseParams() : super(kStructSize);
+  ViewManagerServiceGetViewTreeResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceGetViewTreeResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -955,11 +1136,21 @@ class ViewManagerServiceGetViewTreeResponseParams extends bindings.Struct {
     ViewManagerServiceGetViewTreeResponseParams result = new ViewManagerServiceGetViewTreeResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       {
@@ -976,7 +1167,7 @@ class ViewManagerServiceGetViewTreeResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     if (views == null) {
       encoder0.encodeNullPointer(8, false);
@@ -996,13 +1187,13 @@ class ViewManagerServiceGetViewTreeResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewSurfaceIdParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   surface_id_mojom.SurfaceId surfaceId = null;
 
-  ViewManagerServiceSetViewSurfaceIdParams() : super(kStructSize);
+  ViewManagerServiceSetViewSurfaceIdParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewSurfaceIdParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1015,15 +1206,25 @@ class ViewManagerServiceSetViewSurfaceIdParams extends bindings.Struct {
     ViewManagerServiceSetViewSurfaceIdParams result = new ViewManagerServiceSetViewSurfaceIdParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.surfaceId = surface_id_mojom.SurfaceId.decode(decoder1);
@@ -1032,7 +1233,7 @@ class ViewManagerServiceSetViewSurfaceIdParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -1047,12 +1248,12 @@ class ViewManagerServiceSetViewSurfaceIdParams extends bindings.Struct {
 }
 
 class ViewManagerServiceSetViewSurfaceIdResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceSetViewSurfaceIdResponseParams() : super(kStructSize);
+  ViewManagerServiceSetViewSurfaceIdResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceSetViewSurfaceIdResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1065,11 +1266,21 @@ class ViewManagerServiceSetViewSurfaceIdResponseParams extends bindings.Struct {
     ViewManagerServiceSetViewSurfaceIdResponseParams result = new ViewManagerServiceSetViewSurfaceIdResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -1077,7 +1288,7 @@ class ViewManagerServiceSetViewSurfaceIdResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -1089,15 +1300,15 @@ class ViewManagerServiceSetViewSurfaceIdResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceEmbedUrlParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   String url = null;
   int viewId = 0;
   Object services = null;
   Object exposedServices = null;
 
-  ViewManagerServiceEmbedUrlParams() : super(kStructSize);
+  ViewManagerServiceEmbedUrlParams() : super(kVersions.last.size);
 
   static ViewManagerServiceEmbedUrlParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1110,23 +1321,33 @@ class ViewManagerServiceEmbedUrlParams extends bindings.Struct {
     ViewManagerServiceEmbedUrlParams result = new ViewManagerServiceEmbedUrlParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.url = decoder0.decodeString(8, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.services = decoder0.decodeInterfaceRequest(20, true, service_provider_mojom.ServiceProviderStub.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.exposedServices = decoder0.decodeServiceInterface(24, true, service_provider_mojom.ServiceProviderProxy.newFromEndpoint);
     }
@@ -1134,7 +1355,7 @@ class ViewManagerServiceEmbedUrlParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeString(url, 8, false);
     
@@ -1155,12 +1376,12 @@ class ViewManagerServiceEmbedUrlParams extends bindings.Struct {
 }
 
 class ViewManagerServiceEmbedUrlResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceEmbedUrlResponseParams() : super(kStructSize);
+  ViewManagerServiceEmbedUrlResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceEmbedUrlResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1173,11 +1394,21 @@ class ViewManagerServiceEmbedUrlResponseParams extends bindings.Struct {
     ViewManagerServiceEmbedUrlResponseParams result = new ViewManagerServiceEmbedUrlResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -1185,7 +1416,7 @@ class ViewManagerServiceEmbedUrlResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -1197,13 +1428,13 @@ class ViewManagerServiceEmbedUrlResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServiceEmbedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int viewId = 0;
   Object client = null;
 
-  ViewManagerServiceEmbedParams() : super(kStructSize);
+  ViewManagerServiceEmbedParams() : super(kVersions.last.size);
 
   static ViewManagerServiceEmbedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1216,15 +1447,25 @@ class ViewManagerServiceEmbedParams extends bindings.Struct {
     ViewManagerServiceEmbedParams result = new ViewManagerServiceEmbedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.client = decoder0.decodeServiceInterface(12, false, ViewManagerClientProxy.newFromEndpoint);
     }
@@ -1232,7 +1473,7 @@ class ViewManagerServiceEmbedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -1247,12 +1488,12 @@ class ViewManagerServiceEmbedParams extends bindings.Struct {
 }
 
 class ViewManagerServiceEmbedResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServiceEmbedResponseParams() : super(kStructSize);
+  ViewManagerServiceEmbedResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServiceEmbedResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1265,11 +1506,21 @@ class ViewManagerServiceEmbedResponseParams extends bindings.Struct {
     ViewManagerServiceEmbedResponseParams result = new ViewManagerServiceEmbedResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -1277,7 +1528,7 @@ class ViewManagerServiceEmbedResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -1289,13 +1540,13 @@ class ViewManagerServiceEmbedResponseParams extends bindings.Struct {
 }
 
 class ViewManagerServicePerformActionParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   String action = null;
 
-  ViewManagerServicePerformActionParams() : super(kStructSize);
+  ViewManagerServicePerformActionParams() : super(kVersions.last.size);
 
   static ViewManagerServicePerformActionParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1308,15 +1559,25 @@ class ViewManagerServicePerformActionParams extends bindings.Struct {
     ViewManagerServicePerformActionParams result = new ViewManagerServicePerformActionParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.action = decoder0.decodeString(16, false);
     }
@@ -1324,7 +1585,7 @@ class ViewManagerServicePerformActionParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -1339,12 +1600,12 @@ class ViewManagerServicePerformActionParams extends bindings.Struct {
 }
 
 class ViewManagerServicePerformActionResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerServicePerformActionResponseParams() : super(kStructSize);
+  ViewManagerServicePerformActionResponseParams() : super(kVersions.last.size);
 
   static ViewManagerServicePerformActionResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1357,11 +1618,21 @@ class ViewManagerServicePerformActionResponseParams extends bindings.Struct {
     ViewManagerServicePerformActionResponseParams result = new ViewManagerServicePerformActionResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -1369,7 +1640,7 @@ class ViewManagerServicePerformActionResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -1381,9 +1652,9 @@ class ViewManagerServicePerformActionResponseParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnEmbedParams extends bindings.Struct {
-  static const int kStructSize = 48;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(48, 0)
+  ];
   int connectionId = 0;
   Object viewManagerService = null;
   String embedderUrl = null;
@@ -1392,7 +1663,7 @@ class ViewManagerClientOnEmbedParams extends bindings.Struct {
   Object exposedServices = null;
   core.MojoMessagePipeEndpoint windowManagerPipe = null;
 
-  ViewManagerClientOnEmbedParams() : super(kStructSize);
+  ViewManagerClientOnEmbedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnEmbedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1405,36 +1676,46 @@ class ViewManagerClientOnEmbedParams extends bindings.Struct {
     ViewManagerClientOnEmbedParams result = new ViewManagerClientOnEmbedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.connectionId = decoder0.decodeUint16(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewManagerService = decoder0.decodeServiceInterface(12, true, ViewManagerServiceProxy.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.embedderUrl = decoder0.decodeString(16, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.root = ViewData.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.services = decoder0.decodeInterfaceRequest(32, true, service_provider_mojom.ServiceProviderStub.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.exposedServices = decoder0.decodeServiceInterface(36, true, service_provider_mojom.ServiceProviderProxy.newFromEndpoint);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.windowManagerPipe = decoder0.decodeMessagePipeHandle(40, false);
     }
@@ -1442,7 +1723,7 @@ class ViewManagerClientOnEmbedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint16(connectionId, 8);
     
@@ -1472,12 +1753,12 @@ class ViewManagerClientOnEmbedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnEmbeddedAppDisconnectedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int view = 0;
 
-  ViewManagerClientOnEmbeddedAppDisconnectedParams() : super(kStructSize);
+  ViewManagerClientOnEmbeddedAppDisconnectedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnEmbeddedAppDisconnectedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1490,11 +1771,21 @@ class ViewManagerClientOnEmbeddedAppDisconnectedParams extends bindings.Struct {
     ViewManagerClientOnEmbeddedAppDisconnectedParams result = new ViewManagerClientOnEmbeddedAppDisconnectedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
@@ -1502,7 +1793,7 @@ class ViewManagerClientOnEmbeddedAppDisconnectedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
   }
@@ -1514,14 +1805,14 @@ class ViewManagerClientOnEmbeddedAppDisconnectedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewBoundsChangedParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   int view = 0;
   geometry_mojom.Rect oldBounds = null;
   geometry_mojom.Rect newBounds = null;
 
-  ViewManagerClientOnViewBoundsChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewBoundsChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewBoundsChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1534,20 +1825,30 @@ class ViewManagerClientOnViewBoundsChangedParams extends bindings.Struct {
     ViewManagerClientOnViewBoundsChangedParams result = new ViewManagerClientOnViewBoundsChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.oldBounds = geometry_mojom.Rect.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       result.newBounds = geometry_mojom.Rect.decode(decoder1);
@@ -1556,7 +1857,7 @@ class ViewManagerClientOnViewBoundsChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -1574,13 +1875,13 @@ class ViewManagerClientOnViewBoundsChangedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewViewportMetricsChangedParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   native_viewport_mojom.ViewportMetrics oldMetrics = null;
   native_viewport_mojom.ViewportMetrics newMetrics = null;
 
-  ViewManagerClientOnViewViewportMetricsChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewViewportMetricsChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewViewportMetricsChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1593,16 +1894,26 @@ class ViewManagerClientOnViewViewportMetricsChangedParams extends bindings.Struc
     ViewManagerClientOnViewViewportMetricsChangedParams result = new ViewManagerClientOnViewViewportMetricsChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(8, false);
       result.oldMetrics = native_viewport_mojom.ViewportMetrics.decode(decoder1);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.newMetrics = native_viewport_mojom.ViewportMetrics.decode(decoder1);
@@ -1611,7 +1922,7 @@ class ViewManagerClientOnViewViewportMetricsChangedParams extends bindings.Struc
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeStruct(oldMetrics, 8, false);
     
@@ -1626,15 +1937,15 @@ class ViewManagerClientOnViewViewportMetricsChangedParams extends bindings.Struc
 }
 
 class ViewManagerClientOnViewHierarchyChangedParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   int view = 0;
   int newParent = 0;
   int oldParent = 0;
   List<ViewData> views = null;
 
-  ViewManagerClientOnViewHierarchyChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewHierarchyChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewHierarchyChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1647,23 +1958,33 @@ class ViewManagerClientOnViewHierarchyChangedParams extends bindings.Struct {
     ViewManagerClientOnViewHierarchyChangedParams result = new ViewManagerClientOnViewHierarchyChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.newParent = decoder0.decodeUint32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.oldParent = decoder0.decodeUint32(16);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(24, false);
       {
@@ -1680,7 +2001,7 @@ class ViewManagerClientOnViewHierarchyChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -1709,14 +2030,14 @@ class ViewManagerClientOnViewHierarchyChangedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewReorderedParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   int relativeViewId = 0;
   int direction = 0;
 
-  ViewManagerClientOnViewReorderedParams() : super(kStructSize);
+  ViewManagerClientOnViewReorderedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewReorderedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1729,19 +2050,29 @@ class ViewManagerClientOnViewReorderedParams extends bindings.Struct {
     ViewManagerClientOnViewReorderedParams result = new ViewManagerClientOnViewReorderedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.relativeViewId = decoder0.decodeUint32(12);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.direction = decoder0.decodeInt32(16);
     }
@@ -1749,7 +2080,7 @@ class ViewManagerClientOnViewReorderedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -1767,12 +2098,12 @@ class ViewManagerClientOnViewReorderedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewDeletedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int view = 0;
 
-  ViewManagerClientOnViewDeletedParams() : super(kStructSize);
+  ViewManagerClientOnViewDeletedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewDeletedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1785,11 +2116,21 @@ class ViewManagerClientOnViewDeletedParams extends bindings.Struct {
     ViewManagerClientOnViewDeletedParams result = new ViewManagerClientOnViewDeletedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
@@ -1797,7 +2138,7 @@ class ViewManagerClientOnViewDeletedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
   }
@@ -1809,13 +2150,13 @@ class ViewManagerClientOnViewDeletedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewVisibilityChangedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int view = 0;
   bool visible = false;
 
-  ViewManagerClientOnViewVisibilityChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewVisibilityChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewVisibilityChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1828,15 +2169,25 @@ class ViewManagerClientOnViewVisibilityChangedParams extends bindings.Struct {
     ViewManagerClientOnViewVisibilityChangedParams result = new ViewManagerClientOnViewVisibilityChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.visible = decoder0.decodeBool(12, 0);
     }
@@ -1844,7 +2195,7 @@ class ViewManagerClientOnViewVisibilityChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -1859,13 +2210,13 @@ class ViewManagerClientOnViewVisibilityChangedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewDrawnStateChangedParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   int view = 0;
   bool drawn = false;
 
-  ViewManagerClientOnViewDrawnStateChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewDrawnStateChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewDrawnStateChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1878,15 +2229,25 @@ class ViewManagerClientOnViewDrawnStateChangedParams extends bindings.Struct {
     ViewManagerClientOnViewDrawnStateChangedParams result = new ViewManagerClientOnViewDrawnStateChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.drawn = decoder0.decodeBool(12, 0);
     }
@@ -1894,7 +2255,7 @@ class ViewManagerClientOnViewDrawnStateChangedParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -1909,14 +2270,14 @@ class ViewManagerClientOnViewDrawnStateChangedParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewSharedPropertyChangedParams extends bindings.Struct {
-  static const int kStructSize = 32;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(32, 0)
+  ];
   int view = 0;
   String name = null;
   List<int> newData = null;
 
-  ViewManagerClientOnViewSharedPropertyChangedParams() : super(kStructSize);
+  ViewManagerClientOnViewSharedPropertyChangedParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewSharedPropertyChangedParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1929,19 +2290,29 @@ class ViewManagerClientOnViewSharedPropertyChangedParams extends bindings.Struct
     ViewManagerClientOnViewSharedPropertyChangedParams result = new ViewManagerClientOnViewSharedPropertyChangedParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.name = decoder0.decodeString(16, false);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.newData = decoder0.decodeUint8Array(24, bindings.kArrayNullable, bindings.kUnspecifiedArrayLength);
     }
@@ -1949,7 +2320,7 @@ class ViewManagerClientOnViewSharedPropertyChangedParams extends bindings.Struct
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -1967,13 +2338,13 @@ class ViewManagerClientOnViewSharedPropertyChangedParams extends bindings.Struct
 }
 
 class ViewManagerClientOnViewInputEventParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int view = 0;
   input_events_mojom.Event event = null;
 
-  ViewManagerClientOnViewInputEventParams() : super(kStructSize);
+  ViewManagerClientOnViewInputEventParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewInputEventParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -1986,15 +2357,25 @@ class ViewManagerClientOnViewInputEventParams extends bindings.Struct {
     ViewManagerClientOnViewInputEventParams result = new ViewManagerClientOnViewInputEventParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.view = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       var decoder1 = decoder0.decodePointer(16, false);
       result.event = input_events_mojom.Event.decode(decoder1);
@@ -2003,7 +2384,7 @@ class ViewManagerClientOnViewInputEventParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(view, 8);
     
@@ -2018,11 +2399,11 @@ class ViewManagerClientOnViewInputEventParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnViewInputEventResponseParams extends bindings.Struct {
-  static const int kStructSize = 8;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(8, 0)
+  ];
 
-  ViewManagerClientOnViewInputEventResponseParams() : super(kStructSize);
+  ViewManagerClientOnViewInputEventResponseParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnViewInputEventResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -2035,15 +2416,25 @@ class ViewManagerClientOnViewInputEventResponseParams extends bindings.Struct {
     ViewManagerClientOnViewInputEventResponseParams result = new ViewManagerClientOnViewInputEventResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
     return result;
   }
 
   void encode(bindings.Encoder encoder) {
-    encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    encoder.getStructEncoderAtOffset(kVersions.last);
   }
 
   String toString() {
@@ -2052,13 +2443,13 @@ class ViewManagerClientOnViewInputEventResponseParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnPerformActionParams extends bindings.Struct {
-  static const int kStructSize = 24;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(24, 0)
+  ];
   int viewId = 0;
   String action = null;
 
-  ViewManagerClientOnPerformActionParams() : super(kStructSize);
+  ViewManagerClientOnPerformActionParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnPerformActionParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -2071,15 +2462,25 @@ class ViewManagerClientOnPerformActionParams extends bindings.Struct {
     ViewManagerClientOnPerformActionParams result = new ViewManagerClientOnPerformActionParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.viewId = decoder0.decodeUint32(8);
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.action = decoder0.decodeString(16, false);
     }
@@ -2087,7 +2488,7 @@ class ViewManagerClientOnPerformActionParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeUint32(viewId, 8);
     
@@ -2102,12 +2503,12 @@ class ViewManagerClientOnPerformActionParams extends bindings.Struct {
 }
 
 class ViewManagerClientOnPerformActionResponseParams extends bindings.Struct {
-  static const int kStructSize = 16;
-  static const bindings.StructDataHeader kDefaultStructInfo =
-      const bindings.StructDataHeader(kStructSize, 0);
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
   bool success = false;
 
-  ViewManagerClientOnPerformActionResponseParams() : super(kStructSize);
+  ViewManagerClientOnPerformActionResponseParams() : super(kVersions.last.size);
 
   static ViewManagerClientOnPerformActionResponseParams deserialize(bindings.Message message) {
     return decode(new bindings.Decoder(message));
@@ -2120,11 +2521,21 @@ class ViewManagerClientOnPerformActionResponseParams extends bindings.Struct {
     ViewManagerClientOnPerformActionResponseParams result = new ViewManagerClientOnPerformActionResponseParams();
 
     var mainDataHeader = decoder0.decodeStructDataHeader();
-    if ((mainDataHeader.size < kStructSize) ||
-        (mainDataHeader.version < 0)) {
-      throw new bindings.MojoCodecError('Malformed header');
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
     }
-    {
+    if (mainDataHeader.version >= 0) {
       
       result.success = decoder0.decodeBool(8, 0);
     }
@@ -2132,7 +2543,7 @@ class ViewManagerClientOnPerformActionResponseParams extends bindings.Struct {
   }
 
   void encode(bindings.Encoder encoder) {
-    var encoder0 = encoder.getStructEncoderAtOffset(kDefaultStructInfo);
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
     
     encoder0.encodeBool(success, 8, 0);
   }
@@ -2568,7 +2979,7 @@ class ViewManagerServiceProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ViewManagerServiceProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ViewManagerServiceProxy($impl)";
@@ -3089,7 +3500,7 @@ class ViewManagerClientProxy implements bindings.ProxyBase {
       core.MojoMessagePipeEndpoint endpoint) =>
       new ViewManagerClientProxy.fromEndpoint(endpoint);
 
-  Future close({bool nodefer: false}) => impl.close(nodefer: nodefer);
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
 
   String toString() {
     return "ViewManagerClientProxy($impl)";
