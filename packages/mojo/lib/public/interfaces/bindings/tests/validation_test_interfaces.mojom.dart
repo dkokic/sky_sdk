@@ -463,6 +463,162 @@ class BasicStruct extends bindings.Struct {
   }
 }
 
+class BoundsCheckTestInterfaceMethod0Params extends bindings.Struct {
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
+  int param0 = 0;
+
+  BoundsCheckTestInterfaceMethod0Params() : super(kVersions.last.size);
+
+  static BoundsCheckTestInterfaceMethod0Params deserialize(bindings.Message message) {
+    return decode(new bindings.Decoder(message));
+  }
+
+  static BoundsCheckTestInterfaceMethod0Params decode(bindings.Decoder decoder0) {
+    if (decoder0 == null) {
+      return null;
+    }
+    BoundsCheckTestInterfaceMethod0Params result = new BoundsCheckTestInterfaceMethod0Params();
+
+    var mainDataHeader = decoder0.decodeStructDataHeader();
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
+    }
+    if (mainDataHeader.version >= 0) {
+      
+      result.param0 = decoder0.decodeUint8(8);
+    }
+    return result;
+  }
+
+  void encode(bindings.Encoder encoder) {
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
+    
+    encoder0.encodeUint8(param0, 8);
+  }
+
+  String toString() {
+    return "BoundsCheckTestInterfaceMethod0Params("
+           "param0: $param0" ")";
+  }
+}
+
+class BoundsCheckTestInterfaceMethod0ResponseParams extends bindings.Struct {
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
+  int param0 = 0;
+
+  BoundsCheckTestInterfaceMethod0ResponseParams() : super(kVersions.last.size);
+
+  static BoundsCheckTestInterfaceMethod0ResponseParams deserialize(bindings.Message message) {
+    return decode(new bindings.Decoder(message));
+  }
+
+  static BoundsCheckTestInterfaceMethod0ResponseParams decode(bindings.Decoder decoder0) {
+    if (decoder0 == null) {
+      return null;
+    }
+    BoundsCheckTestInterfaceMethod0ResponseParams result = new BoundsCheckTestInterfaceMethod0ResponseParams();
+
+    var mainDataHeader = decoder0.decodeStructDataHeader();
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
+    }
+    if (mainDataHeader.version >= 0) {
+      
+      result.param0 = decoder0.decodeUint8(8);
+    }
+    return result;
+  }
+
+  void encode(bindings.Encoder encoder) {
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
+    
+    encoder0.encodeUint8(param0, 8);
+  }
+
+  String toString() {
+    return "BoundsCheckTestInterfaceMethod0ResponseParams("
+           "param0: $param0" ")";
+  }
+}
+
+class BoundsCheckTestInterfaceMethod1Params extends bindings.Struct {
+  static const List<bindings.StructDataHeader> kVersions = const [
+    const bindings.StructDataHeader(16, 0)
+  ];
+  int param0 = 0;
+
+  BoundsCheckTestInterfaceMethod1Params() : super(kVersions.last.size);
+
+  static BoundsCheckTestInterfaceMethod1Params deserialize(bindings.Message message) {
+    return decode(new bindings.Decoder(message));
+  }
+
+  static BoundsCheckTestInterfaceMethod1Params decode(bindings.Decoder decoder0) {
+    if (decoder0 == null) {
+      return null;
+    }
+    BoundsCheckTestInterfaceMethod1Params result = new BoundsCheckTestInterfaceMethod1Params();
+
+    var mainDataHeader = decoder0.decodeStructDataHeader();
+    if (mainDataHeader.version <= kVersions.last.version) {
+      // Scan in reverse order to optimize for more recent versions.
+      for (int i = kVersions.length - 1; i >= 0; --i) {
+        if (mainDataHeader.version >= kVersions[i].version) {
+          if (mainDataHeader.size != kVersions[i].size)
+            throw new bindings.MojoCodecError(
+                'Header doesn\'t correspond to any known version.');
+        }
+      }
+    } else if (mainDataHeader.size < kVersions.last.size) {
+      throw new bindings.MojoCodecError(
+        'Message newer than the last known version cannot be shorter than '
+        'required by the last known version.');
+    }
+    if (mainDataHeader.version >= 0) {
+      
+      result.param0 = decoder0.decodeUint8(8);
+    }
+    return result;
+  }
+
+  void encode(bindings.Encoder encoder) {
+    var encoder0 = encoder.getStructEncoderAtOffset(kVersions.last);
+    
+    encoder0.encodeUint8(param0, 8);
+  }
+
+  String toString() {
+    return "BoundsCheckTestInterfaceMethod1Params("
+           "param0: $param0" ")";
+  }
+}
+
 class ConformanceTestInterfaceMethod0Params extends bindings.Struct {
   static const List<bindings.StructDataHeader> kVersions = const [
     const bindings.StructDataHeader(16, 0)
@@ -1458,6 +1614,189 @@ class IntegrationTestInterfaceMethod0ResponseParams extends bindings.Struct {
            "param0: $param0" ")";
   }
 }
+const int kBoundsCheckTestInterface_method0_name = 0;
+const int kBoundsCheckTestInterface_method1_name = 1;
+
+const String BoundsCheckTestInterfaceName =
+      'mojo::test::BoundsCheckTestInterface';
+
+abstract class BoundsCheckTestInterface {
+  Future<BoundsCheckTestInterfaceMethod0ResponseParams> method0(int param0,[Function responseFactory = null]);
+  void method1(int param0);
+
+}
+
+
+class BoundsCheckTestInterfaceProxyImpl extends bindings.Proxy {
+  BoundsCheckTestInterfaceProxyImpl.fromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint) : super.fromEndpoint(endpoint);
+
+  BoundsCheckTestInterfaceProxyImpl.fromHandle(core.MojoHandle handle) :
+      super.fromHandle(handle);
+
+  BoundsCheckTestInterfaceProxyImpl.unbound() : super.unbound();
+
+  static BoundsCheckTestInterfaceProxyImpl newFromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint) =>
+      new BoundsCheckTestInterfaceProxyImpl.fromEndpoint(endpoint);
+
+  String get name => BoundsCheckTestInterfaceName;
+
+  void handleResponse(bindings.ServiceMessage message) {
+    switch (message.header.type) {
+      case kBoundsCheckTestInterface_method0_name:
+        var r = BoundsCheckTestInterfaceMethod0ResponseParams.deserialize(
+            message.payload);
+        if (!message.header.hasRequestId) {
+          throw 'Expected a message with a valid request Id.';
+        }
+        Completer c = completerMap[message.header.requestId];
+        if (c == null) {
+          throw 'Message had unknown request Id: ${message.header.requestId}';
+        }
+        completerMap.remove(message.header.requestId);
+        assert(!c.isCompleted);
+        c.complete(r);
+        break;
+      default:
+        throw new bindings.MojoCodecError("Unexpected message name");
+        break;
+    }
+  }
+
+  String toString() {
+    var superString = super.toString();
+    return "BoundsCheckTestInterfaceProxyImpl($superString)";
+  }
+}
+
+
+class _BoundsCheckTestInterfaceProxyCalls implements BoundsCheckTestInterface {
+  BoundsCheckTestInterfaceProxyImpl _proxyImpl;
+
+  _BoundsCheckTestInterfaceProxyCalls(this._proxyImpl);
+    Future<BoundsCheckTestInterfaceMethod0ResponseParams> method0(int param0,[Function responseFactory = null]) {
+      assert(_proxyImpl.isBound);
+      var params = new BoundsCheckTestInterfaceMethod0Params();
+      params.param0 = param0;
+      return _proxyImpl.sendMessageWithRequestId(
+          params,
+          kBoundsCheckTestInterface_method0_name,
+          -1,
+          bindings.MessageHeader.kMessageExpectsResponse);
+    }
+    void method1(int param0) {
+      assert(_proxyImpl.isBound);
+      var params = new BoundsCheckTestInterfaceMethod1Params();
+      params.param0 = param0;
+      _proxyImpl.sendMessage(params, kBoundsCheckTestInterface_method1_name);
+    }
+  
+}
+
+
+class BoundsCheckTestInterfaceProxy implements bindings.ProxyBase {
+  final bindings.Proxy impl;
+  BoundsCheckTestInterface ptr;
+  final String name = BoundsCheckTestInterfaceName;
+
+  BoundsCheckTestInterfaceProxy(BoundsCheckTestInterfaceProxyImpl proxyImpl) :
+      impl = proxyImpl,
+      ptr = new _BoundsCheckTestInterfaceProxyCalls(proxyImpl);
+
+  BoundsCheckTestInterfaceProxy.fromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint) :
+      impl = new BoundsCheckTestInterfaceProxyImpl.fromEndpoint(endpoint) {
+    ptr = new _BoundsCheckTestInterfaceProxyCalls(impl);
+  }
+
+  BoundsCheckTestInterfaceProxy.fromHandle(core.MojoHandle handle) :
+      impl = new BoundsCheckTestInterfaceProxyImpl.fromHandle(handle) {
+    ptr = new _BoundsCheckTestInterfaceProxyCalls(impl);
+  }
+
+  BoundsCheckTestInterfaceProxy.unbound() :
+      impl = new BoundsCheckTestInterfaceProxyImpl.unbound() {
+    ptr = new _BoundsCheckTestInterfaceProxyCalls(impl);
+  }
+
+  static BoundsCheckTestInterfaceProxy newFromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint) =>
+      new BoundsCheckTestInterfaceProxy.fromEndpoint(endpoint);
+
+  Future close({bool immediate: false}) => impl.close(immediate: immediate);
+
+  String toString() {
+    return "BoundsCheckTestInterfaceProxy($impl)";
+  }
+}
+
+
+class BoundsCheckTestInterfaceStub extends bindings.Stub {
+  BoundsCheckTestInterface _impl = null;
+
+  BoundsCheckTestInterfaceStub.fromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint, [this._impl])
+      : super.fromEndpoint(endpoint);
+
+  BoundsCheckTestInterfaceStub.fromHandle(core.MojoHandle handle, [this._impl])
+      : super.fromHandle(handle);
+
+  BoundsCheckTestInterfaceStub.unbound() : super.unbound();
+
+  static BoundsCheckTestInterfaceStub newFromEndpoint(
+      core.MojoMessagePipeEndpoint endpoint) =>
+      new BoundsCheckTestInterfaceStub.fromEndpoint(endpoint);
+
+  static const String name = BoundsCheckTestInterfaceName;
+
+
+  BoundsCheckTestInterfaceMethod0ResponseParams _BoundsCheckTestInterfaceMethod0ResponseParamsFactory(int param0) {
+    var result = new BoundsCheckTestInterfaceMethod0ResponseParams();
+    result.param0 = param0;
+    return result;
+  }
+
+  Future<bindings.Message> handleMessage(bindings.ServiceMessage message) {
+    assert(_impl != null);
+    switch (message.header.type) {
+      case kBoundsCheckTestInterface_method0_name:
+        var params = BoundsCheckTestInterfaceMethod0Params.deserialize(
+            message.payload);
+        return _impl.method0(params.param0,_BoundsCheckTestInterfaceMethod0ResponseParamsFactory).then((response) {
+          if (response != null) {
+            return buildResponseWithId(
+                response,
+                kBoundsCheckTestInterface_method0_name,
+                message.header.requestId,
+                bindings.MessageHeader.kMessageIsResponse);
+          }
+        });
+        break;
+      case kBoundsCheckTestInterface_method1_name:
+        var params = BoundsCheckTestInterfaceMethod1Params.deserialize(
+            message.payload);
+        _impl.method1(params.param0);
+        break;
+      default:
+        throw new bindings.MojoCodecError("Unexpected message name");
+        break;
+    }
+    return null;
+  }
+
+  BoundsCheckTestInterface get impl => _impl;
+      set impl(BoundsCheckTestInterface d) {
+    assert(_impl == null);
+    _impl = d;
+  }
+
+  String toString() {
+    var superString = super.toString();
+    return "BoundsCheckTestInterfaceStub($superString)";
+  }
+}
+
 const int kConformanceTestInterface_method0_name = 0;
 const int kConformanceTestInterface_method1_name = 1;
 const int kConformanceTestInterface_method2_name = 2;
